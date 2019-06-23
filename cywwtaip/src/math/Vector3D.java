@@ -18,6 +18,13 @@ public class Vector3D {
         System.arraycopy(xn, 0, this.xn, 0, SIZE);
     }
 
+    public Vector3D(float x, float y, float z) {
+        this.xn = new float[SIZE];
+        this.xn[0] = x;
+        this.xn[1] = y;
+        this.xn[2] = z;
+    }
+
     public float getX() { return this.xn[0]; }
     public float getY() { return this.xn[1]; }
     public float getZ() { return this.xn[2]; }
@@ -52,5 +59,27 @@ public class Vector3D {
 
     public static Vector3D fromTo(Vector3D from, Vector3D to) {
         return Vector3D.sub(to, from);
+    }
+
+    public float getLengthSquared() {
+        float lengthSquared = 0.f;
+        for (int i = 0; i < SIZE; i++) {
+            lengthSquared += this.xn[i] * this.xn[i];
+        }
+        return lengthSquared;
+    }
+
+    public float getLength() {
+        return (float) Math.sqrt(getLengthSquared());
+    }
+
+    public static float getDistanceBetween(Vector3D a, Vector3D b) {
+        Vector3D fromTo = Vector3D.sub(a, b);
+        return fromTo.getLength();
+    }
+
+    public static float getDistanceSquaredBetween(Vector3D a, Vector3D b) {
+        Vector3D fromTo = Vector3D.sub(a, b);
+        return fromTo.getLengthSquared();
     }
 }
