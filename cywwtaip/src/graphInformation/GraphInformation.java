@@ -5,6 +5,9 @@ import com.sun.istack.internal.NotNull;
 import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
+import java.util.ArrayDeque;
+import java.util.HashSet;
+
 public class GraphInformation {
     private GraphInformation() {}
 
@@ -13,7 +16,7 @@ public class GraphInformation {
      * @param graphNode The GraphNode of which the position is returned
      * @return The position of the given GraphNode as Vector3D
      */
-    public static Vector3D getPositionOf(GraphNode graphNode) {
+    public static Vector3D getPositionOf(@NotNull GraphNode graphNode) {
         return new Vector3D(graphNode.x, graphNode.y, graphNode.z);
     }
 
@@ -24,7 +27,7 @@ public class GraphInformation {
      * @param position The position to which the closest neighbor is searched
      * @return The neighbor of graphNode, which is the closest to the given position
      */
-    public static GraphNode getClosestNeighborTo(GraphNode graphNode, Vector3D position) {
+    public static GraphNode getClosestNeighborTo(@NotNull GraphNode graphNode, @NotNull Vector3D position) {
         GraphNode closestNeighbor = getClosestOf(graphNode.neighbors, position);
 
         float neighborDistanceSquared = Vector3D.getDistanceSquaredBetween(getPositionOf(closestNeighbor), position);
@@ -76,5 +79,34 @@ public class GraphInformation {
                 graphNode = closestNeighbor;
         }
         return graphNode;
+    }
+
+    /**
+     * Returns the GraphNode that is closest to the given startNode that is owned by the given player
+     * @return The GraphNode, that is owned by playerNumber and was found closest to the given startNode. If no node
+     * could be found, null is returned.
+     */
+    public static GraphNode getClosestGraphNodeOfPlayer(@NotNull GraphNode startNode, int playerNumber) {
+        ArrayDeque<GraphNode> graphNodesToVisit = new ArrayDeque<>();
+        HashSet<GraphNode> alreadyToVisit = new HashSet<>();
+
+        graphNodesToVisit.add(startNode);
+        alreadyToVisit.add(startNode);
+
+        while (!graphNodesToVisit.isEmpty()) {
+            GraphNode node = graphNodesToVisit.poll();
+
+            if (node.owner == playerNumber)
+                return node;
+
+            for (GraphNode neighbor : node.neighbors) {
+                if (!alreadyToVisit.contains(neighbor)) {
+                    graphNodesToVisit.add(neighbor);
+                    alreadyToVisit.add(neighbor);
+                }
+            }
+        }
+
+        return null;
     }
 }

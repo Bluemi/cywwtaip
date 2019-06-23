@@ -3,9 +3,11 @@ import bots.BotType;
 import bots.behaviour.MoveLogic;
 import math.Vector3D;
 
+import java.util.ArrayDeque;
+
 public class Test {
     public static void main(String[] args) {
-        test3();
+        test5();
     }
 
     private static void test1() {
@@ -43,5 +45,16 @@ public class Test {
         System.out.println(b.getLength());
         System.out.println(a);
         System.out.println(b);
+    }
+
+    private static void test5() {
+        ArrayDeque<Integer> deque = new ArrayDeque<>();
+        deque.add(1);
+        deque.add(2);
+        deque.add(3);
+
+        while (!deque.isEmpty()) {
+            System.out.println(deque.poll());
+        }
     }
 }
