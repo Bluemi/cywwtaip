@@ -1,4 +1,6 @@
-package bots;
+package bots.behaviour;
+
+import bots.Bot;
 
 import java.util.Random;
 
@@ -16,5 +18,10 @@ public class RandomBehaviour implements BotBehaviour {
         }
 
         return (float) random.nextGaussian() * 0.4f;
+    }
+
+    @Override
+    public boolean hasFinished(Bot bot) {
+        return false;
     }
 }
