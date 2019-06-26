@@ -5,22 +5,28 @@ import math.Vector3D;
 
 public class Main {
     private class ClientRunner implements Runnable {
+        NetworkClient client;
         String teamName;
         String winSlogan;
-        Bot[] bots;
+        int playerNumber;
 
-        public ClientRunner(String teamName, String winSlogan, Bot[] bots) {
+        public ClientRunner(String teamName, String winSlogan) {
             this.teamName = teamName;
             this.winSlogan = winSlogan;
-            this.bots = bots;
         }
 
         @Override
         public void run() {
-            System.out.println("client " + teamName + " connected");
+            client = new NetworkClient(null, teamName, winSlogan);
+            System.out.println("client " + teamName + " connected!");
+            playerNumber = client.getMyPlayerNumber();
 
-            NetworkClient client = new NetworkClient(null, teamName, winSlogan);
-            int playerNumber = client.getMyPlayerNumber();
+            Bot[] bots = new Bot[] {
+                    new Bot(BotType.NORMAL, client.getGraph()[0]),
+                    new Bot(BotType.MOBILE, client.getGraph()[0]),
+                    new Bot(BotType.WIDE, client.getGraph()[0])
+            };
+
             while (client.isAlive()) {
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
@@ -36,8 +42,6 @@ public class Main {
                     Thread.sleep(100);
                 } catch (InterruptedException ignored) { }
             }
-
-            System.out.println("client " + teamName + " is out");
         }
     }
 
@@ -47,26 +51,9 @@ public class Main {
     }
 
     private void start() {
-        Bot[] bots0 = new Bot[] {
-                new Bot(BotType.NORMAL),
-                new Bot(BotType.NORMAL),
-                new Bot(BotType.NORMAL)
-        };
-        Thread thread0 = new Thread(new ClientRunner("team 0", "team 0 win", bots0));
-
-        Bot[] bots1 = new Bot[] {
-                new Bot(BotType.NORMAL),
-                new Bot(BotType.NORMAL),
-                new Bot(BotType.NORMAL)
-        };
-        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win", bots1));
-
-        Bot[] bots2 = new Bot[] {
-                new Bot(BotType.NORMAL),
-                new Bot(BotType.NORMAL),
-                new Bot(BotType.NORMAL)
-        };
-        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win", bots2));
+        Thread thread0 = new Thread(new ClientRunner("team 0", "team 0 win"));
+        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win"));
+        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win"));
 
         thread0.start();
         thread1.start();

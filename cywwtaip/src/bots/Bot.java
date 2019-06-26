@@ -1,9 +1,6 @@
 package bots;
 
-import bots.behaviour.BotBehaviour;
-import bots.behaviour.GotoNextSupplyBehaviour;
-import bots.behaviour.MoveLogic;
-import bots.behaviour.RandomBehaviour;
+import bots.behaviour.*;
 import com.sun.istack.internal.NotNull;
 import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.world.GraphNode;
@@ -14,20 +11,33 @@ public class Bot {
     Vector3D position;
     Vector3D direction;
     BotBehaviour behaviour;
+    GraphNode currentGraphNode;
 
-    public Bot(BotType botType) {
+    /**
+     * Creates a new Bot
+     * @param botType The type of this bot (normal, mobile, wide)
+     * @param graphNode A random graph node to get access to the graph
+     */
+    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode) {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
-        this.behaviour = new GotoNextSupplyBehaviour();
+        GraphNode supplyNode = GraphInformation.getClosestGraphNodeTo(graphNode, MoveLogic.getNextPowerSupplyCenter(position));
+        this.behaviour = new GotoPointBehaviour(supplyNode);
+        this.currentGraphNode = graphNode;
     }
 
     public void setDefaultBehaviour() {
-        this.behaviour = new RandomBehaviour();
+        this.behaviour = new StayBehaviour();
+    }
+
+    public void setBehaviour(BotBehaviour behaviour) {
+        this.behaviour = behaviour;
     }
 
     public void updatePosition(Vector3D position) {
         this.position = position;
+        this.currentGraphNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, position);
     }
 
     public void updateDirection(Vector3D direction) {
@@ -58,13 +68,11 @@ public class Bot {
 
     /**
      * Returns the closest GraphNode that is owned by the given player.
-     * @param graphNodes An array of graphNodes to search in
      * @param playerNumber The number of the player, who should be the owner of the searched node
      * @return the closest GraphNode that is owned by the given player. If no node was found, null is returned.
      */
-    public Float getDistanceToPlayerNode(GraphNode[] graphNodes, int playerNumber) {
-        GraphNode currentNode = getCurrentGraphNode(graphNodes[0]);
-        GraphNode playerNode = GraphInformation.getClosestGraphNodeOfPlayer(currentNode, playerNumber);
+    public Float getDistanceToPlayerNode(int playerNumber) {
+        GraphNode playerNode = GraphInformation.getClosestGraphNodeOfPlayer(getCurrentGraphNode(), playerNumber);
 
         if (playerNode == null)
             return null;
@@ -73,11 +81,17 @@ public class Bot {
     }
 
     /**
-     * Returns the GraphNode you are standing on
-     * @param graphNode The Graph in which to search
+     * Returns the GraphNode this bot is currently standing on
      */
-    public GraphNode getCurrentGraphNode(GraphNode graphNode) {
-        return GraphInformation.getClosestGraphNodeTo(graphNode, position);
+    public GraphNode getCurrentGraphNode() {
+        return this.currentGraphNode;
+    }
+
+    /**
+     * @return whether this bot ignores obstacles or not.
+     */
+    public boolean ignoresObstacles() {
+        return botType == BotType.MOBILE;
     }
 
     /**
