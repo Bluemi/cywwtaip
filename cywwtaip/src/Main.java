@@ -9,10 +9,17 @@ public class Main {
         String teamName;
         String winSlogan;
         int playerNumber;
+        boolean debug;
 
         public ClientRunner(String teamName, String winSlogan) {
             this.teamName = teamName;
             this.winSlogan = winSlogan;
+        }
+
+        public ClientRunner(String teamName, String winSlogan, boolean debug) {
+            this.teamName = teamName;
+            this.winSlogan = winSlogan;
+            this.debug = debug;
         }
 
         @Override
@@ -27,6 +34,14 @@ public class Main {
                     new Bot(BotType.WIDE, client.getGraph()[0])
             };
 
+            if (debug) {
+                bots[0].doDebug();
+                /*
+                bots[1].doDebug();
+                bots[2].doDebug();
+                 */
+            }
+
             while (client.isAlive()) {
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
@@ -39,7 +54,7 @@ public class Main {
                     }
                 }
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(20);
                 } catch (InterruptedException ignored) { }
             }
         }
@@ -51,9 +66,9 @@ public class Main {
     }
 
     private void start() {
-        Thread thread0 = new Thread(new ClientRunner("team 0", "team 0 win"));
-        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win"));
-        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win"));
+        Thread thread0 = new Thread(new ClientRunner("team 0", "team 0 win", true));
+        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win", false));
+        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win", false));
 
         thread0.start();
         thread1.start();

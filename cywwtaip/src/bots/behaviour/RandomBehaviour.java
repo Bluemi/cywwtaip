@@ -6,18 +6,21 @@ import java.util.Random;
 
 public class RandomBehaviour implements BotBehaviour {
     private Random random;
+    private int counter;
 
     public RandomBehaviour() {
         random = new Random(System.currentTimeMillis());
+        counter = 0;
     }
 
     @Override
     public float getMoveDirectionUpdate(Bot bot) {
-        if (random.nextInt(5) != 0) {
-            return 0.f;
+        counter = (counter+1) % 20;
+        if (counter == 0) {
+            return (float) random.nextGaussian() * 0.7f;
         }
 
-        return (float) random.nextGaussian() * 0.4f;
+        return 0.f;
     }
 
     @Override

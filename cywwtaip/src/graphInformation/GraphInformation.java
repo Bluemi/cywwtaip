@@ -6,6 +6,7 @@ import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class GraphInformation {
     private static final float DIFF_SCALE = 1000.f;
@@ -44,7 +45,7 @@ public class GraphInformation {
         float neighborDistanceSquared = Vector3D.getDistanceSquaredBetween(getPositionOf(closestNeighbor), position);
         float selfDistanceSquared = Vector3D.getDistanceSquaredBetween(getPositionOf(graphNode), position);
 
-        if (selfDistanceSquared < neighborDistanceSquared)
+        if (selfDistanceSquared <= neighborDistanceSquared)
             return null;
 
         return closestNeighbor;
@@ -93,11 +94,11 @@ public class GraphInformation {
     }
 
     /**
-     * Returns the GraphNode that is closest to the given startNode that is owned by the given player
-     * @return The GraphNode, that is owned by playerNumber and was found closest to the given startNode. If no node
+     * Returns the GraphNode that is closest to the given startNode that matches the given predicate.
+     * @return The GraphNode, that matches the given predicate and was found closest to the given startNode. If no node
      * could be found, null is returned.
      */
-    public static GraphNode getClosestGraphNodeOfPlayer(@NotNull GraphNode startNode, int playerNumber) {
+    public static GraphNode getClosestGraphWithPredicate(@NotNull GraphNode startNode, Predicate<GraphNode> predicate) {
         ArrayDeque<GraphNode> graphNodesToVisit = new ArrayDeque<>();
         HashSet<GraphNode> alreadyToVisit = new HashSet<>();
 
@@ -107,7 +108,7 @@ public class GraphInformation {
         while (!graphNodesToVisit.isEmpty()) {
             GraphNode node = graphNodesToVisit.poll();
 
-            if (node.owner == playerNumber)
+            if (predicate.test(node))
                 return node;
 
             for (GraphNode neighbor : node.neighbors) {
@@ -182,6 +183,8 @@ public class GraphInformation {
                 nodes.add(currentWrapper.graphNode);
                 currentWrapper = currentWrapper.predecessor;
             }
+
+            Collections.reverse(nodes);
 
             return nodes;
         }
