@@ -10,6 +10,12 @@ import java.util.function.Predicate;
 
 public class GraphInformation {
     private static final float DIFF_SCALE = 1000.f;
+    public static final float AVERAGE_NEIGHBOR_DISTANCE = 0.01978f;
+    public static final float AVERAGE_NEIGHBOR_DISTANCE_SQUARED = AVERAGE_NEIGHBOR_DISTANCE * AVERAGE_NEIGHBOR_DISTANCE;
+    public static final float MAX_NEIGHBOR_DISTANCE = 0.0823f;
+    public static final float MAX_NEIGHBOR_DISTANCE_SQUARED = MAX_NEIGHBOR_DISTANCE * MAX_NEIGHBOR_DISTANCE;
+    public static final float MIN_NEIGHBOR_DISTANCE = 0.0163f;
+    public static final float MIN_NEIGHBOR_DISTANCE_SQUARED = MIN_NEIGHBOR_DISTANCE * MIN_NEIGHBOR_DISTANCE;
 
     private GraphInformation() {}
 
@@ -17,10 +23,14 @@ public class GraphInformation {
      * @return the distance between the GraphNode a and the GraphNode b
      */
     public static float getDistanceBetween(@NotNull GraphNode a, @NotNull GraphNode b) {
-        float xDiff = a.x - b.x;
-        float yDiff = a.y - b.y;
-        float zDiff = a.z - b.z;
-        return (float) Math.sqrt(xDiff*xDiff + yDiff*yDiff + zDiff*zDiff);
+        return Vector3D.getDistanceBetween(getPositionOf(a), getPositionOf(b));
+    }
+
+    /**
+     * @return the squared distance between the GraphNode a and the GraphNode b
+     */
+    public static float getDistanceSquaredBetween(@NotNull GraphNode a, @NotNull GraphNode b) {
+        return Vector3D.getDistanceSquaredBetween(getPositionOf(a), getPositionOf(b));
     }
 
     /**
@@ -29,7 +39,7 @@ public class GraphInformation {
      * @return The position of the given GraphNode as Vector3D
      */
     public static Vector3D getPositionOf(@NotNull GraphNode graphNode) {
-        return new Vector3D(graphNode.x, graphNode.y, graphNode.z);
+        return new Vector3D(graphNode.x, graphNode.y, graphNode.z).normalized();
     }
 
     /**
@@ -85,10 +95,19 @@ public class GraphInformation {
 
         while (true) {
             GraphNode closestNeighbor = getClosestNeighborTo(graphNode, position);
-            if (closestNeighbor == null)
+            if (closestNeighbor == null) {
+                float distance = Vector3D.getDistanceBetween(getPositionOf(graphNode), position);
+                if (distance > 0.1f) {
+                    System.out.println("position: " + position);
+                    System.out.println("closest node: " + graphNode);
+                    System.out.println("distance: " + distance);
+                    GraphNode g = getClosestNeighborTo(graphNode, position);
+                    System.out.println("g: " + g);
+                }
                 break;
-            else
+            } else {
                 graphNode = closestNeighbor;
+            }
         }
         return graphNode;
     }
@@ -132,8 +151,8 @@ public class GraphInformation {
         Vector3D aPos = getPositionOf(a);
         Vector3D bPos = getPositionOf(b);
 
-        float aDiff = Vector3D.getDistanceSquaredBetween(aPos, targetNodePosition);
-        float bDiff = Vector3D.getDistanceSquaredBetween(bPos, targetNodePosition);
+        float aDiff = Vector3D.getDistanceBetween(aPos, targetNodePosition);
+        float bDiff = Vector3D.getDistanceBetween(bPos, targetNodePosition);
 
         float diff = aDiff - bDiff;
         int intDiff = Math.round(diff * DIFF_SCALE);
@@ -267,5 +286,25 @@ public class GraphInformation {
             openList.add(neighborWrapper);
         }
 
+    }
+
+    /**
+     * Chooses a random node of the given nodes and returns it.
+     * @param graph The graph to choose a random node from
+     * @return The randomly chosen GraphNode
+     */
+    public static GraphNode getRandomNode(GraphNode[] graph) {
+        int index =  new Random(System.currentTimeMillis()).nextInt(graph.length);
+        return graph[index];
+    }
+
+    /**
+     * Returns a randomly selected node, that is accessible by the neighbors of the given graphNode.
+     * @param graphNode The graphNode to start from
+     * @return A randomly selected GraphNode
+     */
+    public static GraphNode getRandomNode(GraphNode graphNode) {
+        Vector3D position = Vector3D.getRandomNormalized();
+        return GraphInformation.getClosestGraphNodeTo(graphNode, position);
     }
 }

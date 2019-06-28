@@ -1,4 +1,4 @@
-import lenz.htw.cywwtaip.world.GraphNode;
+import bots.BotType;
 
 public class Test {
     public static void main(String[] args) {
@@ -6,6 +6,6 @@ public class Test {
     }
 
     public static void test1() {
-        System.out.println("hello world!");
+        System.out.println(BotType.NORMAL);
     }
 }

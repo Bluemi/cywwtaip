@@ -8,37 +8,32 @@ import math.Vector3D;
 import java.util.List;
 
 public class GotoPointBehaviour implements BotBehaviour {
-    private static final float FINISH_DISTANCE_SQUARED = 0.0001f;
-    private static final int LOOK_FORWARD_DISTANCE = 1;
+    private static final float FINISH_DISTANCE_SQUARED = 0.001f;
 
+    private CompletePathBehaviour completePathBehaviour;
     private GraphNode targetGraphNode;
     private Vector3D targetGraphNodePosition;
-    private boolean hasFinished;
-    private boolean hasFixedTargetGraphNode;
+    private boolean initialized;
 
+    /**
+     * Creates a new GotoPointBehaviour that navigates the given bot to the given targetGraphNode
+     * @param targetGraphNode The GraphNode to navigate to
+     */
     public GotoPointBehaviour(GraphNode targetGraphNode) {
-        setTargetGraphNode(targetGraphNode);
-        this.hasFinished = false;
-        this.hasFixedTargetGraphNode = false;
-    }
-
-    private void setTargetGraphNode(GraphNode graphNode) {
-        this.targetGraphNode = graphNode;
+        this.completePathBehaviour = null;
+        this.initialized = false;
+        this.targetGraphNode = targetGraphNode;
         this.targetGraphNodePosition = GraphInformation.getPositionOf(targetGraphNode);
     }
 
-    /**
-     * In case of a target graph node, that is blocked, this function will set the target graph node to the closest
-     * graph node of the original target graph node, that is not blocked.
-     */
-    private void fixTargetGraphNode() {
-        if (targetGraphNode.blocked) {
-            GraphNode newTarget = GraphInformation.getClosestGraphWithPredicate(
-                    targetGraphNode,
+    private static GraphNode getFixedTargetGraphNode(GraphNode graphNode) {
+        if (graphNode.blocked) {
+            return GraphInformation.getClosestGraphWithPredicate(
+                    graphNode,
                     (GraphNode g) -> !g.blocked
             );
-            setTargetGraphNode(newTarget);
         }
+        return graphNode;
     }
 
     /**
@@ -50,45 +45,32 @@ public class GotoPointBehaviour implements BotBehaviour {
         if (bot.ignoresObstacles()) {
             return MoveLogic.getDirectionUpdateToPosition(bot, targetGraphNodePosition);
         } else {
-            if (!hasFixedTargetGraphNode)
-                fixTargetGraphNode();
-            /*
-            System.out.println("current Node: " + bot.getCurrentGraphNode());
-            System.out.println("position: " + bot.getPosition());
-            System.out.println("targetGraphNode: " + targetGraphNode);
-            System.out.flush();
-             */
-            List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
-            assert path != null;
+            if (!initialized) {
+                // fix targetGraphNode + targetGraphNodePosition
+                targetGraphNode = getFixedTargetGraphNode(targetGraphNode);
+                targetGraphNodePosition = GraphInformation.getPositionOf(targetGraphNode);
 
-            if (path == null) {
-                if (targetGraphNode.blocked) {
-                    throw new IllegalStateException("hey");
-                } else {
-                    throw new IllegalStateException("yup");
-                }
+                // create path and CompletePathBehaviour
+                List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
+                assert path != null;
+                this.completePathBehaviour = new CompletePathBehaviour(path);
+                this.initialized = true;
             }
 
-            /*
-            System.out.println("path:");
-            for (GraphNode node : path) {
-                System.out.println("\t" + node);
-            }
-             */
-
-            if (path.size() < (LOOK_FORWARD_DISTANCE + 1)) {
-                this.hasFinished = true;
-                return 0.f;
-            }
-
-            GraphNode nextNode = path.get(LOOK_FORWARD_DISTANCE);
-            return MoveLogic.getDirectionUpdateToPosition(bot, GraphInformation.getPositionOf(nextNode));
+            return this.completePathBehaviour.getMoveDirectionUpdate(bot);
         }
     }
 
     @Override
     public boolean hasFinished(Bot bot) {
-        float distance = Vector3D.getDistanceSquaredBetween(bot.getPosition(), this.targetGraphNodePosition);
-        return hasFinished || (distance < FINISH_DISTANCE_SQUARED);
+        if (bot.ignoresObstacles()) {
+            float distanceSquared = Vector3D.getDistanceSquaredBetween(bot.getPosition(), this.targetGraphNodePosition);
+            return distanceSquared < FINISH_DISTANCE_SQUARED;
+        } else {
+            if (initialized)
+                return this.completePathBehaviour.hasFinished(bot);
+            else
+                return false;
+        }
     }
 }
