@@ -186,4 +186,18 @@ public class Vector3D {
         }
         return true;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Vector3D) {
+            Vector3D other = (Vector3D)o;
+            for (int i = 0; i < 3; i++) {
+                if (this.xn[i] != other.xn[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

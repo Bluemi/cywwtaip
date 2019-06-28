@@ -3,6 +3,7 @@ import bots.BotType;
 import bots.behaviour.GotoPointBehaviour;
 import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.net.NetworkClient;
+import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
 public class Main {
@@ -31,12 +32,43 @@ public class Main {
             playerNumber = client.getMyPlayerNumber();
 
             Bot[] bots = new Bot[] {
-                    new Bot(BotType.NORMAL, client.getGraph()[0], new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph()))),
-                    new Bot(BotType.MOBILE, client.getGraph()[0], new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph()))),
-                    new Bot(BotType.WIDE, client.getGraph()[0], new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())))
+                    new Bot(
+                            BotType.NORMAL,
+                            client.getGraph()[0],
+                            new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
+                            teamName
+                    ),
+                    new Bot(
+                            BotType.MOBILE,
+                            client.getGraph()[0],
+                            new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
+                            teamName
+                    ),
+                    new Bot(
+                            BotType.WIDE,
+                            client.getGraph()[0],
+                            new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
+                            teamName
+                    )
             };
 
-            while (client.isAlive()) {
+            // initialize bots
+            for (int botIndex = 0; botIndex < 3; botIndex++) {
+                Bot bot = bots[botIndex];
+                bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
+                bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
+            }
+
+            long highestTime = 0;
+            // wait for game to start
+            while (client.getScore(0) == 0) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ignored) { }
+            }
+
+            while (client.isGameRunning()) {
+                long startTime = System.currentTimeMillis();
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
@@ -51,6 +83,11 @@ public class Main {
                         client.changeMoveDirection(botIndex, directionUpdate);
                     }
                 }
+                long timeDuration = (System.currentTimeMillis() - startTime);
+                if (timeDuration > highestTime) {
+                    System.out.println(teamName + " needed: " + timeDuration + " millis");
+                    highestTime = timeDuration;
+                }
                 try {
                     Thread.sleep(20);
                 } catch (InterruptedException ignored) { }
@@ -64,9 +101,9 @@ public class Main {
     }
 
     private void start() {
-        Thread thread0 = new Thread(new ClientRunner("team 0", "team 0 win", true));
-        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win", true));
-        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win", true));
+        Thread thread0 = new Thread(new ClientRunner("team0", "team 0 win", true));
+        Thread thread1 = new Thread(new ClientRunner("team1", "team 1 win", true));
+        Thread thread2 = new Thread(new ClientRunner("team2", "team 2 win", true));
 
         thread0.start();
         thread1.start();

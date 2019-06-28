@@ -1,0 +1,61 @@
+package bots.behaviour;
+
+import bots.Bot;
+import com.sun.istack.internal.NotNull;
+import graphInformation.GraphInformation;
+import lenz.htw.cywwtaip.world.GraphNode;
+import math.Vector3D;
+
+import java.util.List;
+
+public class CompletePathBehaviour implements BotBehaviour {
+    private static final float FINISH_DISTANCE = 0.001f;
+
+    private List<GraphNode> path;
+    private boolean hasFinished;
+    private Vector3D targetPosition;
+
+    public CompletePathBehaviour(@NotNull List<GraphNode> path) {
+        this.path = path;
+        assert path.size() > 0;
+
+        this.targetPosition = GraphInformation.getPositionOf(getLastPathNode());
+        this.hasFinished = false;
+    }
+
+    private int getNearestIndex(Bot bot) {
+        int nearestIndex = 0;
+        float nearestDistanceSquared = bot.getDistanceSquaredTo(path.get(0));
+        for (int i = 1; i < path.size(); i++) {
+            GraphNode node = path.get(i);
+            float distanceSquared = bot.getDistanceSquaredTo(node);
+            if (distanceSquared < nearestDistanceSquared) {
+                nearestIndex = i;
+                nearestDistanceSquared = distanceSquared;
+            }
+        }
+        return nearestIndex;
+    }
+
+    private GraphNode getLastPathNode() {
+        return path.get(path.size() - 1);
+    }
+
+    @Override
+    public float getMoveDirectionUpdate(Bot bot) {
+        int nearestIndex = getNearestIndex(bot);
+        if (nearestIndex == path.size()-1) {
+            this.hasFinished = true;
+            return MoveLogic.getDirectionUpdateToPosition(bot, this.targetPosition);
+        }
+
+        GraphNode nextNode = path.get(nearestIndex + 1);
+        return MoveLogic.getDirectionUpdateToPosition(bot, GraphInformation.getPositionOf(nextNode));
+
+    }
+
+    @Override
+    public boolean hasFinished(Bot bot) {
+        return hasFinished || bot.getDistanceSquaredTo(path.get(path.size() - 1)) < FINISH_DISTANCE;
+    }
+}

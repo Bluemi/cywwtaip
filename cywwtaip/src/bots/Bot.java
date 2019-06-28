@@ -6,37 +6,93 @@ import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
+import java.util.ArrayDeque;
+
 public class Bot {
+    private static final float STUCK_DISTANCE_SQUARED = GraphInformation.MIN_NEIGHBOR_DISTANCE_SQUARED * 2;
+    private static final int STUCK_QUEUE_SIZE = 5;
+    private static final int MAX_STUCK_NOT_CHANGED_DURATION = 100;
+
+
     BotType botType;
     Vector3D position;
     Vector3D direction;
     BotBehaviour behaviour;
     GraphNode currentGraphNode;
-    public boolean debug;
-    int counter;
+    BotLogger logger;
+    ArrayDeque<GraphNode> lastGraphNodes;
+    long lastGraphNodeUpdate;
 
     /**
      * Creates a new Bot
      * @param botType The type of this bot (normal, mobile, wide)
      * @param graphNode A random graph node to get access to the graph
      */
-    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour) {
+    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour, String teamName) {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
         this.behaviour = behaviour;
         this.currentGraphNode = graphNode;
-        this.counter = 0;
-        this.debug = false;
+        this.logger = new BotLogger(teamName, botType);
+        this.lastGraphNodes = new ArrayDeque<>(STUCK_QUEUE_SIZE);
+        this.lastGraphNodeUpdate = -1;
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
         this.behaviour = behaviour;
     }
 
+    private void addLastGraphNode(GraphNode g) {
+        if (lastGraphNodes.size() >= STUCK_QUEUE_SIZE) {
+            lastGraphNodes.poll();
+        }
+        lastGraphNodes.add(g);
+    }
+
     public void updatePosition(Vector3D position) {
-        this.position = position;
-        this.currentGraphNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, position);
+        if (!this.position.equals(position)) {
+            this.position = position;
+            GraphNode closestGraphNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, position);
+
+            if (currentGraphNode != closestGraphNode) {
+                this.currentGraphNode = closestGraphNode;
+                lastGraphNodeUpdate = System.currentTimeMillis();
+            }
+        }
+
+        float distance = Vector3D.getDistanceBetween(position, GraphInformation.getPositionOf(currentGraphNode));
+        if (distance > 0.1f) {
+            System.out.println("found to big distance=" + distance + " position=" + position + " currentNode=" + currentGraphNode);
+        }
+
+        if (isStuck()) {
+            // logger.log("stuck");
+        }
+    }
+
+    public boolean isStuck() {
+        if (lastGraphNodeUpdate < 0) {
+            lastGraphNodeUpdate++;
+        } else if (lastGraphNodeUpdate == 0) {
+            lastGraphNodeUpdate = System.currentTimeMillis();
+        } else {
+            long currentTime = System.currentTimeMillis();
+            long diff = currentTime - lastGraphNodeUpdate;
+
+            boolean stuck = diff > MAX_STUCK_NOT_CHANGED_DURATION;
+
+            /*
+            if (ignoresObstacles() && stuck) {
+                System.out.println("diff: " + diff);
+                System.out.println("position: " + position);
+                System.out.println("currentNode: " + GraphInformation.getPositionOf(currentGraphNode));
+            }
+             */
+
+            return diff > MAX_STUCK_NOT_CHANGED_DURATION;
+        }
+        return false;
     }
 
     public void updateDirection(Vector3D direction) {
@@ -68,6 +124,13 @@ public class Bot {
     public float getDistanceToSupply() {
         Vector3D supplyPosition = MoveLogic.getNextPowerSupplyCenter(this.position);
         return Vector3D.getDistanceBetween(supplyPosition, position);
+    }
+
+    /**
+     * @return the squared distance to the given graphNode
+     */
+    public float getDistanceSquaredTo(GraphNode graphNode) {
+        return Vector3D.getDistanceSquaredBetween(position, GraphInformation.getPositionOf(graphNode));
     }
 
     /**
@@ -121,10 +184,6 @@ public class Bot {
         }
 
         return closestBotPosition;
-    }
-
-    public void doDebug() {
-        this.debug = true;
     }
 
     public boolean hasFinished() {
