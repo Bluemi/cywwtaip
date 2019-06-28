@@ -1,5 +1,7 @@
 package math;
 
+import java.util.Random;
+
 public class Vector3D {
     private final float[] xn;
     public static final int SIZE = 3;
@@ -23,6 +25,14 @@ public class Vector3D {
         this.xn[0] = x;
         this.xn[1] = y;
         this.xn[2] = z;
+    }
+
+    /**
+     * @return a random normalized vector
+     */
+    public static Vector3D getRandomNormalized() {
+        Random random = new Random(System.currentTimeMillis());
+        return new Vector3D(random.nextFloat(), random.nextFloat(), random.nextFloat()).normalized();
     }
 
     /**

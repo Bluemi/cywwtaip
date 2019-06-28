@@ -1,5 +1,7 @@
 import bots.Bot;
 import bots.BotType;
+import bots.behaviour.GotoPointBehaviour;
+import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.net.NetworkClient;
 import math.Vector3D;
 
@@ -29,24 +31,20 @@ public class Main {
             playerNumber = client.getMyPlayerNumber();
 
             Bot[] bots = new Bot[] {
-                    new Bot(BotType.NORMAL, client.getGraph()[0]),
-                    new Bot(BotType.MOBILE, client.getGraph()[0]),
-                    new Bot(BotType.WIDE, client.getGraph()[0])
+                    new Bot(BotType.NORMAL, client.getGraph()[0], new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph()))),
+                    new Bot(BotType.MOBILE, client.getGraph()[0], new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph()))),
+                    new Bot(BotType.WIDE, client.getGraph()[0], new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())))
             };
-
-            if (debug) {
-                bots[0].doDebug();
-                /*
-                bots[1].doDebug();
-                bots[2].doDebug();
-                 */
-            }
 
             while (client.isAlive()) {
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
+
+                    if (bot.hasFinished()) {
+                        bot.setBehaviour(new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
+                    }
                     float directionUpdate = bot.getDirectionUpdate();
 
                     if (directionUpdate != 0.f) {
@@ -67,8 +65,8 @@ public class Main {
 
     private void start() {
         Thread thread0 = new Thread(new ClientRunner("team 0", "team 0 win", true));
-        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win", false));
-        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win", false));
+        Thread thread1 = new Thread(new ClientRunner("team 1", "team 1 win", true));
+        Thread thread2 = new Thread(new ClientRunner("team 2", "team 2 win", true));
 
         thread0.start();
         thread1.start();

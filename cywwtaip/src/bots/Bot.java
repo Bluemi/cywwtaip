@@ -20,19 +20,14 @@ public class Bot {
      * @param botType The type of this bot (normal, mobile, wide)
      * @param graphNode A random graph node to get access to the graph
      */
-    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode) {
+    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour) {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
-        this.behaviour = new StayBehaviour();
+        this.behaviour = behaviour;
         this.currentGraphNode = graphNode;
         this.counter = 0;
         this.debug = false;
-    }
-
-    public void setDefaultBehaviour() {
-        this.behaviour = new RandomBehaviour();
-        System.out.println("random");
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
@@ -41,24 +36,7 @@ public class Bot {
 
     public void updatePosition(Vector3D position) {
         this.position = position;
-        if (debug) {
-            System.out.println("start get closest");
-            System.out.flush();
-        }
         this.currentGraphNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, position);
-        if (debug) {
-            System.out.println("end get closest");
-            System.out.flush();
-        }
-
-        if (debug) {
-            float distance = Vector3D.getDistanceBetween(GraphInformation.getPositionOf(currentGraphNode), position);
-            if (distance > 0.05f) {
-                System.out.println("updatePosition.position: " + position);
-                System.out.println("updatePosition.currentGraphNode: " + currentGraphNode);
-                System.out.println("distance: " + distance);
-            }
-        }
     }
 
     public void updateDirection(Vector3D direction) {
@@ -66,25 +44,14 @@ public class Bot {
     }
 
     public float getDirectionUpdate() {
-        if (debug && !(behaviour instanceof GotoPointBehaviour)) {
-            counter++;
-            System.out.println("counter: " + counter);
-            if (counter >= 200) {
-                counter = 0;
-                GraphNode supplyNode = GraphInformation.getClosestGraphNodeTo(
-                        getCurrentGraphNode(),
-                        MoveLogic.getNextPowerSupplyCenter(position)
-                );
-                System.out.println("Supply Center: " + MoveLogic.getNextPowerSupplyCenter(position));
-                System.out.println("SupplyNode: " + supplyNode);
-                this.behaviour = new GotoPointBehaviour(supplyNode);
-                System.out.println("goto supply");
-            }
-        }
         if (behaviour.hasFinished(this))
             setDefaultBehaviour();
 
         return behaviour.getMoveDirectionUpdate(this);
+    }
+
+    private void setDefaultBehaviour() {
+        this.behaviour = new StayBehaviour();
     }
 
     public Vector3D getPosition() {
@@ -158,6 +125,9 @@ public class Bot {
 
     public void doDebug() {
         this.debug = true;
-        System.out.println("do debug");
+    }
+
+    public boolean hasFinished() {
+        return this.behaviour.hasFinished(this);
     }
 }

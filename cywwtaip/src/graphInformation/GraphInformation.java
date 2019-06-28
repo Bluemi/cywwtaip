@@ -268,4 +268,24 @@ public class GraphInformation {
         }
 
     }
+
+    /**
+     * Chooses a random node of the given nodes and returns it.
+     * @param graph The graph to choose a random node from
+     * @return The randomly chosen GraphNode
+     */
+    public static GraphNode getRandomNode(GraphNode[] graph) {
+        int index =  new Random(System.currentTimeMillis()).nextInt(graph.length);
+        return graph[index];
+    }
+
+    /**
+     * Returns a randomly selected node, that is accessible by the neighbors of the given graphNode.
+     * @param graphNode The graphNode to start from
+     * @return A randomly selected GraphNode
+     */
+    public static GraphNode getRandomNode(GraphNode graphNode) {
+        Vector3D position = Vector3D.getRandomNormalized();
+        return GraphInformation.getClosestGraphNodeTo(graphNode, position);
+    }
 }
