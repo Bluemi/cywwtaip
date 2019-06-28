@@ -1,9 +1,9 @@
 import bots.Bot;
 import bots.BotType;
 import bots.behaviour.GotoPointBehaviour;
+import bots.behaviour.RandomBehaviour;
 import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.net.NetworkClient;
-import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
 public class Main {
@@ -76,6 +76,7 @@ public class Main {
 
                     if (bot.hasFinished()) {
                         bot.setBehaviour(new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
+                        // bot.setBehaviour(new RandomBehaviour());
                     }
                     float directionUpdate = bot.getDirectionUpdate();
 
