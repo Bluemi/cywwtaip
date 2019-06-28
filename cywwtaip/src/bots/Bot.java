@@ -6,12 +6,8 @@ import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
-import java.util.ArrayDeque;
-
 public class Bot {
-    private static final float STUCK_DISTANCE_SQUARED = GraphInformation.MIN_NEIGHBOR_DISTANCE_SQUARED * 2;
-    private static final int STUCK_QUEUE_SIZE = 5;
-    private static final int MAX_STUCK_NOT_CHANGED_DURATION = 100;
+    private static final int MAX_STUCK_NOT_CHANGED_DURATION = 150;
 
 
 
@@ -21,8 +17,8 @@ public class Bot {
     BotBehaviour behaviour;
     GraphNode currentGraphNode;
     BotLogger logger;
-    ArrayDeque<GraphNode> lastGraphNodes;
-    long lastGraphNodeUpdate;
+    long lastPositionUpdate;
+    String teamName;
 
 
     /**
@@ -37,60 +33,41 @@ public class Bot {
         this.behaviour = behaviour;
         this.currentGraphNode = graphNode;
         this.logger = new BotLogger(teamName, botType);
-        this.lastGraphNodes = new ArrayDeque<>(STUCK_QUEUE_SIZE);
-        this.lastGraphNodeUpdate = -1;
+        this.lastPositionUpdate = -1;
+        this.teamName = teamName;
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
         this.behaviour = behaviour;
     }
 
-    private void addLastGraphNode(GraphNode g) {
-        if (lastGraphNodes.size() >= STUCK_QUEUE_SIZE) {
-            lastGraphNodes.poll();
-        }
-        lastGraphNodes.add(g);
-    }
-
     public void updatePosition(Vector3D position) {
         if (!this.position.equals(position)) {
             this.position = position;
-            GraphNode closestGraphNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, position);
+            currentGraphNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, position);
 
-            if (currentGraphNode != closestGraphNode) {
-                this.currentGraphNode = closestGraphNode;
-                lastGraphNodeUpdate = System.currentTimeMillis();
-            }
+            lastPositionUpdate = System.currentTimeMillis();
         }
 
-        float distance = Vector3D.getDistanceBetween(position, GraphInformation.getPositionOf(currentGraphNode));
-        if (distance > 0.1f) {
+        float distance = Vector3D.getDistanceSquaredBetween(position, GraphInformation.getPositionOf(currentGraphNode));
+        if (distance > 0.01f) {
             System.out.println("found to big distance=" + distance + " position=" + position + " currentNode=" + currentGraphNode);
         }
 
         if (isStuck()) {
-            // logger.log("stuck");
+            logger.log("stuck " + teamName + " " + botType);
+            System.out.println("stuck " + teamName + " " + botType);
         }
     }
 
     public boolean isStuck() {
-        if (lastGraphNodeUpdate < 0) {
-            lastGraphNodeUpdate++;
-        } else if (lastGraphNodeUpdate == 0) {
-            lastGraphNodeUpdate = System.currentTimeMillis();
+        if (lastPositionUpdate < 0) {
+            lastPositionUpdate++;
+        } else if (lastPositionUpdate == 0) {
+            lastPositionUpdate = System.currentTimeMillis();
         } else {
             long currentTime = System.currentTimeMillis();
-            long diff = currentTime - lastGraphNodeUpdate;
-
-            boolean stuck = diff > MAX_STUCK_NOT_CHANGED_DURATION;
-
-            /*
-            if (ignoresObstacles() && stuck) {
-                System.out.println("diff: " + diff);
-                System.out.println("position: " + position);
-                System.out.println("currentNode: " + GraphInformation.getPositionOf(currentGraphNode));
-            }
-             */
+            long diff = currentTime - lastPositionUpdate;
 
             return diff > MAX_STUCK_NOT_CHANGED_DURATION;
         }
