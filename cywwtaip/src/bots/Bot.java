@@ -19,6 +19,7 @@ public class Bot {
     long lastPositionUpdate;
     public String teamName;
 
+
     /**
      * Creates a new Bot
      * @param botType The type of this bot (normal, mobile, wide)
@@ -160,5 +161,33 @@ public class Bot {
 
     public boolean hasFinished() {
         return this.behaviour.hasFinished(this);
+    }
+
+    public void driveTo(GraphNode node){
+        //TODO
+        // hat updateDirection die selbe wirkung? nur das eine richtung angegeben wird, anstatt das ziel? wie wird das fahren zum ziel geregelt? indem direction anhhand bom ziel ermittelt wird?
+    }
+
+    public GraphNode[] getPathToSupply(){
+        //TODO
+        // länge des weges zur energy
+        // wahrscheinlich ähnlich zu getDistanceToSupply oder? sollte aber schluchten mit einbeziehen
+        // returned ein node array das schluchten umgeht(sollte ignoreObstacles() == false sein), das abgefahren werden kann
+        // gibt es ein behavior, das mehrere Nodes bekommen kann und nach erreichen des ziels nicht ins default schaltet sondern danach zu dem nächsten node fährt? das würde
+        // der manager dann an das behavior übergeben
+        return null;
+    }
+
+    public GraphNode[] getPathToPlayerNode(int playernumber){
+        //TODO
+        // so wie getPathToSupply
+        return null;
+    }
+
+    public GraphNode[] getClusterPosition(){
+        // TODO nicht zwingend für einen Bot implementiert sondern soll später wahrscheinlich eher im Manager laufen
+        // Idee dahinter --> Wo kann man am meisten Punkte klauen auch wenn man anhand von lag/latenz auch mal einen schlenker zur seite macht?
+        // --> da wo regional die meisten enemy nodes zu finden sind
+        return null;
     }
 }
