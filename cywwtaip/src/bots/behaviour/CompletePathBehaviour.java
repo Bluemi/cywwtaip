@@ -10,6 +10,7 @@ import java.util.List;
 
 public class CompletePathBehaviour implements BotBehaviour {
     private static final float FINISH_DISTANCE = 0.001f;
+    private static final int LOOK_FORWARD_DISTANCE = 2;
 
     private List<GraphNode> path;
     private boolean hasFinished;
@@ -43,15 +44,26 @@ public class CompletePathBehaviour implements BotBehaviour {
 
     @Override
     public float getMoveDirectionUpdate(Bot bot) {
+        if (bot.isStuck()) {
+            /*
+            Vector3D unstuckTarget = MoveLogic.getUnstuckTarget(bot);
+            System.out.println(bot.teamName + " " + bot.botType + "stuck");
+            System.out.println("unstuck target: " + unstuckTarget);
+             */
+            Vector3D unstuckTarget = Vector3D.getRandomNormalized();
+            return MoveLogic.getDirectionUpdateToPosition(bot, unstuckTarget);
+        }
+
         int nearestIndex = getNearestIndex(bot);
-        if (nearestIndex == path.size()-1) {
+        int look_forward_index = nearestIndex + LOOK_FORWARD_DISTANCE;
+        if (look_forward_index >= path.size()) {
             this.hasFinished = true;
             return MoveLogic.getDirectionUpdateToPosition(bot, this.targetPosition);
         }
 
-        GraphNode nextNode = path.get(nearestIndex + 1);
-        return MoveLogic.getDirectionUpdateToPosition(bot, GraphInformation.getPositionOf(nextNode));
+        GraphNode nextNode = path.get(look_forward_index);
 
+        return MoveLogic.getDirectionUpdateToPosition(bot, GraphInformation.getPositionOf(nextNode));
     }
 
     @Override

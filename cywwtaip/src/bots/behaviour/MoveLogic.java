@@ -1,6 +1,8 @@
 package bots.behaviour;
 
 import bots.Bot;
+import graphInformation.GraphInformation;
+import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
 public class MoveLogic {
@@ -42,5 +44,34 @@ public class MoveLogic {
         float value = position.get(coordinateIndex);
         Vector3D result = new Vector3D();
         return result.set(Math.signum(value), coordinateIndex);
+    }
+
+    /**
+     * Searches a target node that is free for passing
+     * @param bot The bot for which to search a unstuck route.
+     * @return The position to go to, to unstuck the given bot
+     */
+    public static Vector3D getUnstuckTarget(Bot bot) {
+        GraphNode g = bot.getCurrentGraphNode();
+        Vector3D gPos = GraphInformation.getPositionOf(g);
+
+        Vector3D toNeighbors = new Vector3D();
+        int counter = 0;
+        for (GraphNode n : g.neighbors) {
+            if (n.blocked) {
+                Vector3D g2n = Vector3D.fromTo(gPos, GraphInformation.getPositionOf(n));
+                toNeighbors = Vector3D.add(toNeighbors, g2n);
+                counter++;
+            }
+        }
+
+        if (counter == 0) {
+            System.out.println("random unstuck");
+            return Vector3D.getRandomNormalized();
+        }
+
+        Vector3D awayFromNeighbors = toNeighbors.scale(-1.f / counter);
+
+        return Vector3D.add(gPos, awayFromNeighbors);
     }
 }

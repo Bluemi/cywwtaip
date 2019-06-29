@@ -10,14 +10,14 @@ public class Bot {
     private static final int MAX_STUCK_NOT_CHANGED_DURATION = 150;
 
 
-    BotType botType;
+    public BotType botType;
     Vector3D position;
     Vector3D direction;
     BotBehaviour behaviour;
     GraphNode currentGraphNode;
     BotLogger logger;
     long lastPositionUpdate;
-    String teamName;
+    public String teamName;
 
     /**
      * Creates a new Bot
@@ -50,11 +50,6 @@ public class Bot {
         float distance = Vector3D.getDistanceSquaredBetween(position, GraphInformation.getPositionOf(currentGraphNode));
         if (distance > 0.01f) {
             System.out.println("found to big distance=" + distance + " position=" + position + " currentNode=" + currentGraphNode);
-        }
-
-        if (isStuck()) {
-            logger.log("stuck " + teamName + " " + botType);
-            System.out.println("stuck " + teamName + " " + botType);
         }
     }
 

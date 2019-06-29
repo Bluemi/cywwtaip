@@ -32,7 +32,7 @@ public class Vector3D {
      */
     public static Vector3D getRandomNormalized() {
         Random random = new Random(System.currentTimeMillis());
-        return new Vector3D(random.nextFloat(), random.nextFloat(), random.nextFloat()).normalized();
+        return new Vector3D(random.nextFloat()*2.f - 1.f, random.nextFloat()*2.f - 1.f, random.nextFloat()*2.f - 1.f).normalized();
     }
 
     /**
