@@ -28,7 +28,7 @@ public class GotoPointBehaviour implements BotBehaviour {
 
     private static GraphNode getFixedTargetGraphNode(GraphNode graphNode) {
         if (graphNode.blocked) {
-            return GraphInformation.getClosestGraphWithPredicate(
+            return GraphInformation.getClosestGraphNodeWithPredicate(
                     graphNode,
                     (GraphNode g) -> !g.blocked
             );

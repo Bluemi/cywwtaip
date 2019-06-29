@@ -11,10 +11,14 @@ import java.util.List;
 public class CompletePathBehaviour implements BotBehaviour {
     private static final float FINISH_DISTANCE = 0.001f;
     private static final int LOOK_FORWARD_DISTANCE = 2;
+    private static final float UNSTUCK_DIRECTION_UPDATE = 0.2f;
+    private static final int NUM_UNSTUCK_FRAMES = 5;
 
     private List<GraphNode> path;
     private boolean hasFinished;
     private Vector3D targetPosition;
+    private float unstuckDirection;
+    private int unstuckCounter;
 
     public CompletePathBehaviour(@NotNull List<GraphNode> path) {
         this.path = path;
@@ -22,6 +26,8 @@ public class CompletePathBehaviour implements BotBehaviour {
 
         this.targetPosition = GraphInformation.getPositionOf(getLastPathNode());
         this.hasFinished = false;
+        this.unstuckDirection = 0.f;
+        this.unstuckCounter = 0;
     }
 
     private int getNearestIndex(Bot bot) {
@@ -44,15 +50,6 @@ public class CompletePathBehaviour implements BotBehaviour {
 
     @Override
     public float getMoveDirectionUpdate(Bot bot) {
-        if (bot.isStuck()) {
-            /*
-            Vector3D unstuckTarget = MoveLogic.getUnstuckTarget(bot);
-            System.out.println(bot.teamName + " " + bot.botType + "stuck");
-            System.out.println("unstuck target: " + unstuckTarget);
-             */
-            Vector3D unstuckTarget = Vector3D.getRandomNormalized();
-            return MoveLogic.getDirectionUpdateToPosition(bot, unstuckTarget);
-        }
 
         int nearestIndex = getNearestIndex(bot);
         int look_forward_index = nearestIndex + LOOK_FORWARD_DISTANCE;
@@ -62,6 +59,27 @@ public class CompletePathBehaviour implements BotBehaviour {
         }
 
         GraphNode nextNode = path.get(look_forward_index);
+
+        if (bot.isStuck()) {
+            if (unstuckDirection == 0.f) {
+                Vector3D fromBotToNextNode = Vector3D.fromTo(bot.getPosition(), GraphInformation.getPositionOf(nextNode));
+                if (Vector3D.isAngleAcute(bot.getLeftDirection(), fromBotToNextNode)) {
+                    unstuckDirection = -UNSTUCK_DIRECTION_UPDATE;
+                } else {
+                    unstuckDirection = UNSTUCK_DIRECTION_UPDATE;
+                }
+
+                unstuckCounter = NUM_UNSTUCK_FRAMES;
+            }
+            return unstuckDirection;
+        } else {
+            unstuckDirection = 0.f;
+        }
+
+        if (unstuckCounter > 0) {
+            unstuckCounter--;
+            return unstuckDirection;
+        }
 
         return MoveLogic.getDirectionUpdateToPosition(bot, GraphInformation.getPositionOf(nextNode));
     }

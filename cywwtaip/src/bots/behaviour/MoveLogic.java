@@ -5,6 +5,8 @@ import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
+import java.util.Arrays;
+
 public class MoveLogic {
     private MoveLogic() {}
 
@@ -73,5 +75,24 @@ public class MoveLogic {
         Vector3D awayFromNeighbors = toNeighbors.scale(-1.f / counter);
 
         return Vector3D.add(gPos, awayFromNeighbors);
+    }
+
+    /**
+     * Returns whether the given bot collides with the next neighbor graphNode if it would move in the direction of the
+     * bot. If the bot ignores obstacles this function always returns false.
+     * @param bot Checks whether this bot is colliding
+     * @return true, if the given bot collides with a neighbor graphNode, otherwise false
+     */
+    public static boolean isBotColliding(Bot bot) {
+        if (bot.ignoresObstacles()) {
+            return false;
+        }
+        Vector3D scaledDirection = bot.getDirection().withLength(GraphInformation.AVERAGE_NEIGHBOR_DISTANCE);
+        Vector3D nextPosition = Vector3D.add(bot.getPosition(), scaledDirection);
+
+        GraphNode[] neighbors = bot.getCurrentGraphNode().neighbors.clone();
+        Arrays.sort(neighbors, new GraphInformation.GraphNodePositionComparator(nextPosition));
+
+        return neighbors[neighbors.length-2].blocked || neighbors[neighbors.length-1].blocked;
     }
 }

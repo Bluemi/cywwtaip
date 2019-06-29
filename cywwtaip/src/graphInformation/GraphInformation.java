@@ -96,14 +96,7 @@ public class GraphInformation {
         while (true) {
             GraphNode closestNeighbor = getClosestNeighborTo(graphNode, position);
             if (closestNeighbor == null) {
-                float distance = Vector3D.getDistanceBetween(getPositionOf(graphNode), position);
-                if (distance > 0.1f) {
-                    System.out.println("position: " + position);
-                    System.out.println("closest node: " + graphNode);
-                    System.out.println("distance: " + distance);
-                    GraphNode g = getClosestNeighborTo(graphNode, position);
-                    System.out.println("g: " + g);
-                }
+                assert Vector3D.getDistanceBetween(getPositionOf(graphNode), position) < MAX_NEIGHBOR_DISTANCE * 2.f;
                 break;
             } else {
                 graphNode = closestNeighbor;
@@ -117,8 +110,13 @@ public class GraphInformation {
      * @return The GraphNode, that matches the given predicate and was found closest to the given startNode. If no node
      * could be found, null is returned.
      */
-    public static GraphNode getClosestGraphWithPredicate(@NotNull GraphNode startNode, Predicate<GraphNode> predicate) {
-        ArrayDeque<GraphNode> graphNodesToVisit = new ArrayDeque<>();
+    public static GraphNode getClosestGraphNodeWithPredicate(
+            @NotNull GraphNode startNode,
+            @NotNull Predicate<GraphNode> predicate
+    ) {
+        PriorityQueue<GraphNode> graphNodesToVisit = new PriorityQueue<>(
+                new GraphNodePositionComparator(getPositionOf(startNode))
+        );
         HashSet<GraphNode> alreadyToVisit = new HashSet<>();
 
         graphNodesToVisit.add(startNode);
@@ -139,6 +137,48 @@ public class GraphInformation {
         }
 
         return null;
+    }
+
+    /**
+     * Returns the n GraphNodes which are closest to the given position that matches the given predicate.
+     * It is assumed that the given startNode is the closest node of the graph to the given position.
+     * @return The List of GraphNodes, that matches the given predicate and was found closest to the given startNode.
+     * If no node could be found, null is returned an empty list is returned.
+     */
+    public static ArrayList<GraphNode> getClosestGraphNodesWithPredicate(
+            @NotNull GraphNode startNode,
+            @NotNull Vector3D position,
+            @NotNull Predicate<GraphNode> predicate,
+            int n
+    ) {
+        PriorityQueue<GraphNode> graphNodesToVisit = new PriorityQueue<>(
+                new GraphNodePositionComparator(position)
+        );
+        HashSet<GraphNode> alreadyToVisit = new HashSet<>();
+        ArrayList<GraphNode> foundNodes = new ArrayList<>();
+
+        graphNodesToVisit.add(startNode);
+        alreadyToVisit.add(startNode);
+
+        while (!graphNodesToVisit.isEmpty()) {
+            GraphNode node = graphNodesToVisit.poll();
+
+            if (predicate.test(node)) {
+                foundNodes.add(node);
+                if (foundNodes.size() == n) {
+                    return foundNodes;
+                }
+            }
+
+            for (GraphNode neighbor : node.neighbors) {
+                if (!alreadyToVisit.contains(neighbor)) {
+                    graphNodesToVisit.add(neighbor);
+                    alreadyToVisit.add(neighbor);
+                }
+            }
+        }
+
+        return foundNodes;
     }
 
     /**
@@ -306,5 +346,34 @@ public class GraphInformation {
     public static GraphNode getRandomNode(GraphNode graphNode) {
         Vector3D position = Vector3D.getRandomNormalized();
         return GraphInformation.getClosestGraphNodeTo(graphNode, position);
+    }
+
+    public static class GraphNodePositionComparator implements Comparator<GraphNode> {
+        private Vector3D position;
+
+        public GraphNodePositionComparator(Vector3D position) {
+            this.position = position;
+        }
+
+        @Override
+        public int compare(GraphNode g1, GraphNode g2) {
+            return graphNodeComparison(position, g1, g2);
+        }
+    }
+
+    /**
+     * overwrites every neighbor of a blocked node to be blocked as well
+     * @param graph The array of GraphNodes to prepare
+     */
+    public static void prepareGraph(GraphNode[] graph) {
+        ArrayList<GraphNode> blockedNodes = new ArrayList<>();
+
+        for (GraphNode g : graph)
+            if (g.blocked)
+                blockedNodes.add(g);
+
+        for (GraphNode g : blockedNodes)
+            for (GraphNode n : g.neighbors)
+                n.blocked = true;
     }
 }

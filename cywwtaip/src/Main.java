@@ -90,7 +90,7 @@ public class Main {
                     highestTime = timeDuration;
                 }
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(50);
                 } catch (InterruptedException ignored) { }
             }
         }

@@ -15,10 +15,9 @@ public class Bot {
     Vector3D direction;
     BotBehaviour behaviour;
     GraphNode currentGraphNode;
-    BotLogger logger;
+    public BotLogger logger;
     long lastPositionUpdate;
     public String teamName;
-
 
     /**
      * Creates a new Bot
@@ -52,6 +51,10 @@ public class Bot {
         if (distance > 0.01f) {
             System.out.println("found to big distance=" + distance + " position=" + position + " currentNode=" + currentGraphNode);
         }
+    }
+
+    public Vector3D getLeftDirection() {
+        return Vector3D.crossProduct(position, direction).normalized();
     }
 
     public boolean isStuck() {
@@ -112,7 +115,7 @@ public class Bot {
      * @return the closest GraphNode that is owned by the given player. If no node was found, null is returned.
      */
     public Float getDistanceToPlayerNode(int playerNumber) {
-        GraphNode playerNode = GraphInformation.getClosestGraphWithPredicate(
+        GraphNode playerNode = GraphInformation.getClosestGraphNodeWithPredicate(
                 getCurrentGraphNode(),
                 (GraphNode x) -> x.owner == playerNumber
         );

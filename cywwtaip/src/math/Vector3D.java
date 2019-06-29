@@ -36,7 +36,7 @@ public class Vector3D {
     }
 
     /**
-     * @return the positive angle between a and b in radians.
+     * @return the positive angle between a and b in radians. Returns Nan, if one of a or b has length 0.
      */
     public static float getAngleBetween(Vector3D a, Vector3D b) {
         float dotProd = Vector3D.dotProduct(a, b);
@@ -78,6 +78,18 @@ public class Vector3D {
         );
     }
 
+    public static boolean isAngleAcute(Vector3D a, Vector3D b) {
+        return dotProduct(a, b) > 0.f;
+    }
+
+    public static boolean isAngleObtuse(Vector3D a, Vector3D b) {
+        return dotProduct(a, b) < 0.f;
+    }
+
+    public static boolean isOrthogonal(Vector3D a, Vector3D b) {
+        return dotProduct(a, b) == 0.f;
+    }
+
     public static Vector3D add(Vector3D a, Vector3D b) {
         Vector3D result = new Vector3D();
         for (int i = 0; i < SIZE; i++)
@@ -97,6 +109,14 @@ public class Vector3D {
         for (int i = 0; i < SIZE; i++)
             result.xn[i] = this.xn[i] * f;
         return result;
+    }
+
+    public Vector3D withLength(float f) {
+        float length = getLength();
+        if (length == 0.f)
+            return new Vector3D();
+
+        return this.scale(f / length);
     }
 
     public static Vector3D fromTo(Vector3D from, Vector3D to) {
