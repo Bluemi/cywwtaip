@@ -1,7 +1,6 @@
 import bots.Bot;
 import bots.BotType;
-import bots.behaviour.GotoPointBehaviour;
-import bots.behaviour.RandomBehaviour;
+import bots.behaviour.DriveToPointBehaviour;
 import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.net.NetworkClient;
 import math.Vector3D;
@@ -35,19 +34,19 @@ public class Main {
                     new Bot(
                             BotType.NORMAL,
                             client.getGraph()[0],
-                            new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
+                            new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
                             teamName
                     ),
                     new Bot(
                             BotType.MOBILE,
                             client.getGraph()[0],
-                            new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
+                            new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
                             teamName
                     ),
                     new Bot(
                             BotType.WIDE,
                             client.getGraph()[0],
-                            new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
+                            new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
                             teamName
                     )
             };
@@ -75,7 +74,7 @@ public class Main {
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
                     if (bot.hasFinished()) {
-                        bot.setBehaviour(new GotoPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
+                        bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
                         // bot.setBehaviour(new RandomBehaviour());
                     }
                     float directionUpdate = bot.getDirectionUpdate();

@@ -7,7 +7,7 @@ import math.Vector3D;
 
 import java.util.List;
 
-public class GotoPointBehaviour implements BotBehaviour {
+public class DriveToPointBehaviour implements BotBehaviour {
     private static final float FINISH_DISTANCE_SQUARED = 0.001f;
 
     private CompletePathBehaviour completePathBehaviour;
@@ -16,10 +16,10 @@ public class GotoPointBehaviour implements BotBehaviour {
     private boolean initialized;
 
     /**
-     * Creates a new GotoPointBehaviour that navigates the given bot to the given targetGraphNode
+     * Creates a new DriveToPointBehaviour that navigates the given bot to the given targetGraphNode
      * @param targetGraphNode The GraphNode to navigate to
      */
-    public GotoPointBehaviour(GraphNode targetGraphNode) {
+    public DriveToPointBehaviour(GraphNode targetGraphNode) {
         this.completePathBehaviour = null;
         this.initialized = false;
         this.targetGraphNode = targetGraphNode;

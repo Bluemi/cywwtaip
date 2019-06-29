@@ -6,6 +6,8 @@ import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
+import java.util.ArrayList;
+
 public class Bot {
     private static final int MAX_STUCK_NOT_CHANGED_DURATION = 150;
 
@@ -169,22 +171,30 @@ public class Bot {
     public void driveTo(GraphNode node){
         //TODO
         // hat updateDirection die selbe wirkung? nur das eine richtung angegeben wird, anstatt das ziel? wie wird das fahren zum ziel geregelt? indem direction anhhand bom ziel ermittelt wird?
+        this.behaviour = new DriveToPointBehaviour(node);
     }
 
-    public GraphNode[] getPathToSupply(){
+    public ArrayList<GraphNode> getPathToSupply(){
         //TODO
         // länge des weges zur energy
         // wahrscheinlich ähnlich zu getDistanceToSupply oder? sollte aber schluchten mit einbeziehen
         // returned ein node array das schluchten umgeht(sollte ignoreObstacles() == false sein), das abgefahren werden kann
         // gibt es ein behavior, das mehrere Nodes bekommen kann und nach erreichen des ziels nicht ins default schaltet sondern danach zu dem nächsten node fährt? das würde
         // der manager dann an das behavior übergeben
-        return null;
+
+        Vector3D nextPowerSupplyCenter = MoveLogic.getNextPowerSupplyCenter(position);
+        GraphNode supplyTargetNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, nextPowerSupplyCenter);
+        return GraphInformation.getPathTo(currentGraphNode, supplyTargetNode);
     }
 
-    public GraphNode[] getPathToPlayerNode(int playernumber){
+    public ArrayList<GraphNode> getPathToPlayerNode(int playernumber){
         //TODO
         // so wie getPathToSupply
-        return null;
+        GraphNode targetNode = GraphInformation.getClosestGraphNodeWithPredicate(
+                currentGraphNode,
+                (GraphNode g) -> g.owner == playernumber
+        );
+        return GraphInformation.getPathTo(currentGraphNode, targetNode);
     }
 
     public GraphNode[] getClusterPosition(){
