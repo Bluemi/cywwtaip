@@ -30,7 +30,7 @@ public class Bot {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
-        this.behaviour = behaviour;
+        setBehaviour(behaviour);
         this.currentGraphNode = graphNode;
         this.logger = new BotLogger(teamName, botType);
         this.lastPositionUpdate = -1;
@@ -39,6 +39,7 @@ public class Bot {
 
     public void setBehaviour(BotBehaviour behaviour) {
         this.behaviour = behaviour;
+        this.behaviour.init(this);
     }
 
     public void updatePosition(Vector3D position) {
@@ -85,7 +86,7 @@ public class Bot {
     }
 
     private void setDefaultBehaviour() {
-        this.behaviour = new StayBehaviour();
+        setBehaviour(new StayBehaviour());
     }
 
     public Vector3D getPosition() {
@@ -171,7 +172,7 @@ public class Bot {
     public void driveTo(GraphNode node){
         //TODO
         // hat updateDirection die selbe wirkung? nur das eine richtung angegeben wird, anstatt das ziel? wie wird das fahren zum ziel geregelt? indem direction anhhand bom ziel ermittelt wird?
-        this.behaviour = new DriveToPointBehaviour(node);
+        setBehaviour(new DriveToPointBehaviour(node));
     }
 
     public ArrayList<GraphNode> getPathToSupply(){
