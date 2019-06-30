@@ -384,30 +384,32 @@ public class GraphInformation {
      * the path.
      * @param startNode The node to start with
      * @param predicate The predicate all members, except the start node, should match
+     * @param maxLength The maximal number of nodes in this path
      * @return A path, with elements matching the given predicate
      */
-    public static ArrayList<GraphNode> getPathWithPredicate(GraphNode startNode, Predicate<GraphNode> predicate) {
+    public static ArrayList<GraphNode> getPathWithPredicate(GraphNode startNode, Predicate<GraphNode> predicate, int maxLength) {
         ArrayList<GraphNode> path = new ArrayList<>();
         Comparator<GraphNode> nodeComparator = new GraphNodePositionComparator(getPositionOf(startNode));
+        HashSet<GraphNode> alreadyFound = new HashSet<>();
+
+        Predicate<GraphNode> predicateAndNotAlreadyFound = predicate.and(graphNode -> !alreadyFound.contains(graphNode));
 
         GraphNode currentNode = startNode;
 
-        boolean found = true;
-
-        while (found) {
+        for (int i = 0; i < maxLength; i++) {
             path.add(currentNode);
+            alreadyFound.add(currentNode);
 
             GraphNode maxNode = getMaxWithPredicate(
                     currentNode.neighbors,
                     nodeComparator,
-                    predicate
+                    predicateAndNotAlreadyFound
             );
 
             if (maxNode == null) {
-                found = false;
-            } else {
-                currentNode = maxNode;
+                break;
             }
+            currentNode = maxNode;
         }
 
         return path;

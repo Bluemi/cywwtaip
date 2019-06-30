@@ -25,19 +25,22 @@ public class Main {
                             BotType.NORMAL,
                             client.getGraph()[0],
                             new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
-                            teamName
+                            teamName,
+                            playerNumber
                     ),
                     new Bot(
                             BotType.MOBILE,
                             client.getGraph()[0],
                             new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
-                            teamName
+                            teamName,
+                            playerNumber
                     ),
                     new Bot(
                             BotType.WIDE,
                             client.getGraph()[0],
                             new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
-                            teamName
+                            teamName,
+                            playerNumber
                     )
             };
         }
@@ -80,6 +83,7 @@ public class Main {
                 //manager.coordinateBots();
                 System.out.println("Team: " + client.getMyPlayerNumber());
                 System.out.println("Speeds: " + client.getBotSpeed(0) + " " + client.getBotSpeed(1) + " " + client.getBotSpeed(2));
+
 
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];

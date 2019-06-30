@@ -6,13 +6,13 @@ import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class MoveLogic {
     private MoveLogic() {}
 
     public static final float EPSILON = 0.000001f;
     public static final float SUPPLY_BORDER = 0.94f;
-
 
     /**
      * Returns the direction update for the given bot, to navigate it to the given position
@@ -38,6 +38,18 @@ public class MoveLogic {
             angle = -angle;
 
         return angle;
+    }
+
+    public static List<Integer> getEnemyPlayerNumbers(int playerNumber) {
+        switch (playerNumber) {
+            case 0:
+                return Arrays.asList(1, 2);
+            case 1:
+                return Arrays.asList(0, 2);
+            case 2:
+                return Arrays.asList(0, 1);
+        }
+        throw new IllegalArgumentException("got player number: " + playerNumber);
     }
 
     /**
