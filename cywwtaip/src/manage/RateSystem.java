@@ -16,7 +16,7 @@ public class RateSystem {
     final float MOBILE_KEEP_DISTANCE = 1.0f;
     final float WIDE_KEEP_DISTANCE = 1.0f;
 
-    public float[] generateRating(Bot bot){
+    public float[] generateRating(Bot bot, float speed){
         float goToEnergySupply;
         float attackOtherPlayer;
         float keepDistance;
