@@ -3,6 +3,7 @@ import bots.BotType;
 import bots.behaviour.DriveToPointBehaviour;
 import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.net.NetworkClient;
+import manage.GameManager;
 import math.Vector3D;
 
 public class Main {
@@ -71,16 +72,28 @@ public class Main {
 
             waitForGameStart();
 
+            GameManager manager = new GameManager(bots, client.getMyPlayerNumber());
+
             while (client.isGameRunning()) {
+
+                //manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
+                //manager.coordinateBots();
+                System.out.println("Team: " + client.getMyPlayerNumber());
+                System.out.println("Speeds: " + client.getBotSpeed(0) + " " + client.getBotSpeed(1) + " " + client.getBotSpeed(2));
+
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
+
                     if (bot.hasFinished()) {
                         bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
                         // bot.setBehaviour(new RandomBehaviour());
                     }
+
+
+
                     float directionUpdate = bot.getDirectionUpdate();
 
                     if (directionUpdate != 0.f) {
@@ -97,6 +110,16 @@ public class Main {
     public static void main(String[] args) {
         Main m = new Main();
         m.start();
+    }
+
+    private float[] getBotSpeeds(NetworkClient client){
+        float[] speeds = {client.getBotSpeed(0), client.getBotSpeed(1), client.getBotSpeed(2)};
+        return speeds;
+    }
+
+    private int[] getPlayerScores(NetworkClient client){
+        int[] scores = {client.getScore(0), client.getScore(1), client.getScore(2)};
+        return scores;
     }
 
     private void start() {
