@@ -45,6 +45,7 @@ public class Bot {
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
+        System.out.println("UPDATE");
         this.behaviour = behaviour;
         this.behaviour.init(this);
     }

@@ -21,7 +21,7 @@ public class GameManager {
     private int currentScore;
 
     private long energyUpdate = System.currentTimeMillis();
-    private final long REFILL_ENERGY_PERIOD = 200;
+    private final long REFILL_ENERGY_PERIOD = 2000;
 
     private int playernumber;
 
@@ -32,6 +32,12 @@ public class GameManager {
     private final short ENERGY_FIT_INDEX = 0;
     private final short PASSIVE_FIT_INDEX = 1;
     private final short REPAINT_FIT_INDEX = 2;
+
+    private final long UPDATETIME = 7000;
+
+    private long normalLastupdated = 0;
+    private long mobileLastupdated = 0;
+    private long wideLastupdated = 0;
 
     private BotTask currentTaskNormal;
     private BotTask currentTaskMobile;
@@ -53,9 +59,9 @@ public class GameManager {
     }
 
     public void coordinateBots() {
-        float[] normalFits = evaluator.generateRating(bots[BOTINDEX_NORMAL]);
-        float[] mobileFits = evaluator.generateRating(bots[BOTINDEX_MOBILE]);
-        float[] wideFits = evaluator.generateRating(bots[BOTINDEX_WIDE]);
+        float[] normalFits = evaluator.generateRating(bots[BOTINDEX_NORMAL], playernumber);
+        float[] mobileFits = evaluator.generateRating(bots[BOTINDEX_MOBILE], playernumber);
+        float[] wideFits = evaluator.generateRating(bots[BOTINDEX_WIDE], playernumber);
 
         checkCurrentGameState(normalFits, mobileFits, wideFits);
 
@@ -65,19 +71,27 @@ public class GameManager {
     }
 
     private void updateStrategy() {
-        if (oldTaskNormal != currentTaskNormal) {
+        long currentTime = System.currentTimeMillis();
+
+        if (oldTaskNormal != currentTaskNormal && currentTime-normalLastupdated > UPDATETIME) {
+            //System.out.println("Update Normal");
             applyBotTask(currentTaskNormal, bots[BOTINDEX_NORMAL], getBestOtherPlayer());
             oldTaskNormal = currentTaskNormal;
+            normalLastupdated =currentTime;
         }
 
-        if (oldTaskMobile != currentTaskMobile) {
+        if (oldTaskMobile != currentTaskMobile && currentTime - mobileLastupdated > UPDATETIME) {
+            //System.out.println("Update Mobile");
             applyBotTask(currentTaskMobile, bots[BOTINDEX_MOBILE], getBestOtherPlayer());
             oldTaskMobile = currentTaskMobile;
+            mobileLastupdated = currentTime;
         }
 
-        if (oldTaskWide != currentTaskWide){
+        if (oldTaskWide != currentTaskWide && currentTime - wideLastupdated > UPDATETIME){
+            //System.out.println("Update Wide");
             applyBotTask(currentTaskWide, bots[BOTINDEX_WIDE], getBestOtherPlayer());
             oldTaskWide = currentTaskWide;
+            wideLastupdated = currentTime;
         }
 
         improveStrategy = false;

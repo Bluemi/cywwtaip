@@ -9,16 +9,16 @@ public class RateSystem {
     final float VIEW_DISTANCE_RANGE = 5;
 
     private final float NORMAL_GET_ENERGY = 1.5f;
-    private final float MOBILE_GET_ENERGY = 1.0f;
-    private final float WIDE_GET_ENERGY = 1.0f;
+    private final float MOBILE_GET_ENERGY = 1.3f;
+    private final float WIDE_GET_ENERGY = 0.3f;
 
-    private final float NORMAL_REPAINT = 1.0f;
-    private final float MOBILE_REPAINT = 1.0f;
-    private final float WIDE_REPAINT = 1.0f;
+    private final float NORMAL_REPAINT = 0.8f;
+    private final float MOBILE_REPAINT = 1.6f;
+    private final float WIDE_REPAINT = 1.8f;
 
-    private final float NORMAL_KEEP_DISTANCE = 1.0f;
-    private final float MOBILE_KEEP_DISTANCE = 1.0f;
-    private final float WIDE_KEEP_DISTANCE = 1.0f;
+    private final float NORMAL_KEEP_DISTANCE = 1.2f;
+    private final float MOBILE_KEEP_DISTANCE = 0.2f;
+    private final float WIDE_KEEP_DISTANCE = 0.7f;
 
     public float[] generateRating(Bot bot, int myPlayernumber){
         if (bot.botType== BotType.NORMAL)
