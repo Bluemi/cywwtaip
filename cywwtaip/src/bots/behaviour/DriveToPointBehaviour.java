@@ -13,7 +13,6 @@ public class DriveToPointBehaviour implements BotBehaviour {
     private CompletePathBehaviour completePathBehaviour;
     private GraphNode targetGraphNode;
     private Vector3D targetGraphNodePosition;
-    private boolean initialized;
 
     /**
      * Creates a new DriveToPointBehaviour that navigates the given bot to the given targetGraphNode
@@ -21,9 +20,20 @@ public class DriveToPointBehaviour implements BotBehaviour {
      */
     public DriveToPointBehaviour(GraphNode targetGraphNode) {
         this.completePathBehaviour = null;
-        this.initialized = false;
         this.targetGraphNode = targetGraphNode;
         this.targetGraphNodePosition = GraphInformation.getPositionOf(targetGraphNode);
+    }
+
+    @Override
+    public void init(Bot bot) {
+        // fix targetGraphNode + targetGraphNodePosition
+        targetGraphNode = getFixedTargetGraphNode(targetGraphNode);
+        targetGraphNodePosition = GraphInformation.getPositionOf(targetGraphNode);
+
+        // create path and CompletePathBehaviour
+        List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
+        assert path != null;
+        this.completePathBehaviour = new CompletePathBehaviour(path);
     }
 
     private static GraphNode getFixedTargetGraphNode(GraphNode graphNode) {
@@ -45,18 +55,6 @@ public class DriveToPointBehaviour implements BotBehaviour {
         if (bot.ignoresObstacles()) {
             return MoveLogic.getDirectionUpdateToPosition(bot, targetGraphNodePosition);
         } else {
-            if (!initialized) {
-                // fix targetGraphNode + targetGraphNodePosition
-                targetGraphNode = getFixedTargetGraphNode(targetGraphNode);
-                targetGraphNodePosition = GraphInformation.getPositionOf(targetGraphNode);
-
-                // create path and CompletePathBehaviour
-                List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
-                assert path != null;
-                this.completePathBehaviour = new CompletePathBehaviour(path);
-                this.initialized = true;
-            }
-
             return this.completePathBehaviour.getMoveDirectionUpdate(bot);
         }
     }
@@ -67,10 +65,7 @@ public class DriveToPointBehaviour implements BotBehaviour {
             float distanceSquared = Vector3D.getDistanceSquaredBetween(bot.getPosition(), this.targetGraphNodePosition);
             return distanceSquared < FINISH_DISTANCE_SQUARED;
         } else {
-            if (initialized)
-                return this.completePathBehaviour.hasFinished(bot);
-            else
-                return false;
+            return this.completePathBehaviour.hasFinished(bot);
         }
     }
 }
