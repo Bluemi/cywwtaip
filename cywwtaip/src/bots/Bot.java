@@ -21,12 +21,14 @@ public class Bot {
     long lastPositionUpdate;
     public String teamName;
 
+    int playerNumber;
+
     /**
      * Creates a new Bot
      * @param botType The type of this bot (normal, mobile, wide)
      * @param graphNode A random graph node to get access to the graph
      */
-    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour, String teamName) {
+    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour, String teamName, int playerNumber) {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
@@ -35,6 +37,11 @@ public class Bot {
         this.lastPositionUpdate = -1;
         this.teamName = teamName;
         setBehaviour(behaviour);
+        this.playerNumber = playerNumber;
+    }
+
+    public int getPlayerNumber() {
+        return playerNumber;
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
@@ -120,7 +127,7 @@ public class Bot {
     public Float getDistanceToPlayerNode(int playerNumber) {
         GraphNode playerNode = GraphInformation.getClosestGraphNodeWithPredicate(
                 getCurrentGraphNode(),
-                (GraphNode x) -> x.owner == playerNumber
+                (GraphNode x) -> x.owner-1 == playerNumber
         );
 
         if (playerNode == null)
@@ -193,7 +200,7 @@ public class Bot {
         // so wie getPathToSupply
         GraphNode targetNode = GraphInformation.getClosestGraphNodeWithPredicate(
                 currentGraphNode,
-                (GraphNode g) -> g.owner == playernumber
+                (GraphNode g) -> g.owner-1 == playernumber
         );
         return GraphInformation.getPathTo(currentGraphNode, targetNode);
     }
@@ -206,6 +213,6 @@ public class Bot {
     }
 
     public boolean isInSupply() {
-        return position.absMax() > MoveLogic.SUPPLY_BORDER;
+        return Math.abs(position.absMax()) > MoveLogic.SUPPLY_BORDER;
     }
 }
