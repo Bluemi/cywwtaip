@@ -53,9 +53,9 @@ public class GameManager {
     }
 
     public void coordinateBots() {
-        float[] normalFits = evaluator.generateRating(bots[BOTINDEX_NORMAL]);
-        float[] mobileFits = evaluator.generateRating(bots[BOTINDEX_MOBILE]);
-        float[] wideFits = evaluator.generateRating(bots[BOTINDEX_WIDE]);
+        float[] normalFits = evaluator.generateRating(bots[BOTINDEX_NORMAL], playernumber);
+        float[] mobileFits = evaluator.generateRating(bots[BOTINDEX_MOBILE], playernumber);
+        float[] wideFits = evaluator.generateRating(bots[BOTINDEX_WIDE], playernumber);
 
         checkCurrentGameState(normalFits, mobileFits, wideFits);
 

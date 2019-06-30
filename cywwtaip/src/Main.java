@@ -13,10 +13,12 @@ public class Main {
         String winSlogan;
         int playerNumber;
         Bot[] bots;
+        String serverIp;
 
-        public ClientRunner(String teamName, String winSlogan) {
+        public ClientRunner(String teamName, String winSlogan, String serverIp) {
             this.teamName = teamName;
             this.winSlogan = winSlogan;
+            this.serverIp = serverIp;
         }
 
         private void createBots() {
@@ -54,7 +56,7 @@ public class Main {
         }
 
         private void setup() {
-            client = new NetworkClient(null, teamName, winSlogan);
+            client = new NetworkClient(serverIp, teamName, winSlogan);
             System.out.println("client " + teamName + " connected!");
             playerNumber = client.getMyPlayerNumber();
         }
@@ -75,36 +77,28 @@ public class Main {
 
             waitForGameStart();
 
-            GameManager manager = new GameManager(bots, client.getMyPlayerNumber());
+            // GameManager manager = new GameManager(bots, client.getMyPlayerNumber());
 
             while (client.isGameRunning()) {
-
-                //manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
-                //manager.coordinateBots();
-                System.out.println("Team: " + client.getMyPlayerNumber());
-                System.out.println("Speeds: " + client.getBotSpeed(0) + " " + client.getBotSpeed(1) + " " + client.getBotSpeed(2));
-
+                /*
+                manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
+                manager.coordinateBots();
+                 */
 
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
-
                     if (bot.hasFinished()) {
-                        bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
-                        // bot.setBehaviour(new RandomBehaviour());
+                        bot.setDefaultBehaviour();
                     }
-
-
 
                     float directionUpdate = bot.getDirectionUpdate();
 
-                    if (directionUpdate != 0.f) {
+                    if (directionUpdate != 0.f)
                         client.changeMoveDirection(botIndex, directionUpdate);
-                    }
-                }
-                try {
+                } try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) { }
             }
@@ -113,7 +107,11 @@ public class Main {
 
     public static void main(String[] args) {
         Main m = new Main();
-        m.start();
+        String serverIp = "localhost";
+        if (args.length == 1) {
+            serverIp = args[0];
+        }
+        m.startOne(serverIp);
     }
 
     private float[] getBotSpeeds(NetworkClient client){
@@ -126,10 +124,10 @@ public class Main {
         return scores;
     }
 
-    private void start() {
+    private void start(String serverIp) {
         Thread[] threads = new Thread[3];
-        for (int i = 0; i < 3; i++)
-            threads[i] = new Thread(new ClientRunner("team"+i, "team " + i + " win"));
+        for (int i = 0; i < threads.length; i++)
+            threads[i] = new Thread(new ClientRunner("team", "Hauptsache nicht Robin und Philipp :D", serverIp));
 
         for (Thread t : threads)
             t.start();
@@ -138,5 +136,10 @@ public class Main {
             for (Thread t : threads)
                 t.join();
         } catch (InterruptedException ignored) { }
+    }
+
+    private void startOne(String serverIp) {
+        ClientRunner runner = new ClientRunner("Bots", "Hauptsache nicht Robin und Philipp :D", serverIp);
+        runner.run();
     }
 }

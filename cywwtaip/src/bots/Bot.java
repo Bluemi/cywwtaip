@@ -47,6 +47,10 @@ public class Bot {
     public void setBehaviour(BotBehaviour behaviour) {
         this.behaviour = behaviour;
         this.behaviour.init(this);
+        /*
+        if (playerNumber == 0 && botType == BotType.NORMAL)
+            System.out.println(behaviour);
+         */
     }
 
     public void updatePosition(Vector3D position) {
@@ -92,8 +96,8 @@ public class Bot {
         return behaviour.getMoveDirectionUpdate(this);
     }
 
-    private void setDefaultBehaviour() {
-        setBehaviour(new StayBehaviour());
+    public void setDefaultBehaviour() {
+        setBehaviour(new PaintBehaviour());
     }
 
     public Vector3D getPosition() {
