@@ -11,26 +11,15 @@ public class Main {
         String teamName;
         String winSlogan;
         int playerNumber;
-        boolean debug;
+        Bot[] bots;
 
         public ClientRunner(String teamName, String winSlogan) {
             this.teamName = teamName;
             this.winSlogan = winSlogan;
         }
 
-        public ClientRunner(String teamName, String winSlogan, boolean debug) {
-            this.teamName = teamName;
-            this.winSlogan = winSlogan;
-            this.debug = debug;
-        }
-
-        @Override
-        public void run() {
-            client = new NetworkClient(null, teamName, winSlogan);
-            System.out.println("client " + teamName + " connected!");
-            playerNumber = client.getMyPlayerNumber();
-
-            Bot[] bots = new Bot[] {
+        private void createBots() {
+            this.bots = new Bot[] {
                     new Bot(
                             BotType.NORMAL,
                             client.getGraph()[0],
@@ -50,24 +39,39 @@ public class Main {
                             teamName
                     )
             };
+        }
 
-            // initialize bots
+        private void initializeBots() {
             for (int botIndex = 0; botIndex < 3; botIndex++) {
                 Bot bot = bots[botIndex];
                 bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
                 bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
             }
+        }
 
-            long highestTime = 0;
-            // wait for game to start
+        private void setup() {
+            client = new NetworkClient(null, teamName, winSlogan);
+            System.out.println("client " + teamName + " connected!");
+            playerNumber = client.getMyPlayerNumber();
+        }
+
+        private void waitForGameStart() {
             while (client.getScore(0) == 0) {
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(10);
                 } catch (InterruptedException ignored) { }
             }
+        }
+
+        @Override
+        public void run() {
+            setup();
+            createBots();
+            initializeBots();
+
+            waitForGameStart();
 
             while (client.isGameRunning()) {
-                long startTime = System.currentTimeMillis();
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
@@ -83,11 +87,6 @@ public class Main {
                         client.changeMoveDirection(botIndex, directionUpdate);
                     }
                 }
-                long timeDuration = (System.currentTimeMillis() - startTime);
-                if (timeDuration > highestTime) {
-                    System.out.println(teamName + " needed: " + timeDuration + " millis");
-                    highestTime = timeDuration;
-                }
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) { }
@@ -101,18 +100,16 @@ public class Main {
     }
 
     private void start() {
-        Thread thread0 = new Thread(new ClientRunner("team0", "team 0 win", true));
-        Thread thread1 = new Thread(new ClientRunner("team1", "team 1 win", true));
-        Thread thread2 = new Thread(new ClientRunner("team2", "team 2 win", true));
+        Thread[] threads = new Thread[3];
+        for (int i = 0; i < 3; i++)
+            threads[i] = new Thread(new ClientRunner("team"+i, "team " + i + " win"));
 
-        thread0.start();
-        thread1.start();
-        thread2.start();
+        for (Thread t : threads)
+            t.start();
 
         try {
-            thread0.join();
-            thread1.join();
-            thread2.join();
+            for (Thread t : threads)
+                t.join();
         } catch (InterruptedException ignored) { }
     }
 }
