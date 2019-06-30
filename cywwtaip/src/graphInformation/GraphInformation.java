@@ -376,4 +376,65 @@ public class GraphInformation {
             for (GraphNode n : g.neighbors)
                 n.blocked = true;
     }
+
+    /**
+     * Determines a path from the given start node. The start node is the first element of the path.
+     * The path only contains GraphNodes, that match the given Predicate. To determine the next node in the path, the
+     * neighbor of last node, which matches the predicate and is as far as possible away from the start node is added to
+     * the path.
+     * @param startNode The node to start with
+     * @param predicate The predicate all members, except the start node, should match
+     * @return A path, with elements matching the given predicate
+     */
+    public static ArrayList<GraphNode> getPathWithPredicate(GraphNode startNode, Predicate<GraphNode> predicate) {
+        ArrayList<GraphNode> path = new ArrayList<>();
+        Comparator<GraphNode> nodeComparator = new GraphNodePositionComparator(getPositionOf(startNode));
+
+        GraphNode currentNode = startNode;
+
+        boolean found = true;
+
+        while (found) {
+            path.add(currentNode);
+
+            GraphNode maxNode = getMaxWithPredicate(
+                    currentNode.neighbors,
+                    nodeComparator,
+                    predicate
+            );
+
+            if (maxNode == null) {
+                found = false;
+            } else {
+                currentNode = maxNode;
+            }
+        }
+
+        return path;
+    }
+
+    /**
+     * Searches the maximum specified by the ordering of the given comparator, that matches the given predicate.
+     * If nodes is empty or non of the given nodes match the given predicate null is returned.
+     * @param nodes The array of nodes to search the maximum in
+     * @param comparator The comparator defining which node is maximal
+     * @param predicate A predicate defining, which nodes are used for the consideration
+     * @return The node with the highest value, given by comparator, that matches the given predicate.
+     */
+    public static GraphNode getMaxWithPredicate(GraphNode[] nodes, Comparator<GraphNode> comparator, Predicate<GraphNode> predicate) {
+        GraphNode maxNode = null;
+        for (GraphNode g : nodes) {
+            if (predicate.test(g)) {
+                if (maxNode == null) {
+                    maxNode = g;
+                } else {
+                    if (comparator.compare(maxNode, g) < 0) {
+                        maxNode = g;
+                    }
+                }
+            }
+        }
+
+        return maxNode;
+    }
 }

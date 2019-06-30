@@ -204,4 +204,8 @@ public class Bot {
         // --> da wo regional die meisten enemy nodes zu finden sind
         return null;
     }
+
+    public boolean isInSupply() {
+        return position.absMax() > MoveLogic.SUPPLY_BORDER;
+    }
 }

@@ -181,6 +181,9 @@ public class Vector3D {
         return index;
     }
 
+    /**
+     * @return the highest absolute value of all coordinates.
+     */
     public float absMax() {
         float highest = this.xn[0];
 

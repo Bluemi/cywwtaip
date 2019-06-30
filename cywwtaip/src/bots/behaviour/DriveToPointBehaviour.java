@@ -34,6 +34,7 @@ public class DriveToPointBehaviour implements BotBehaviour {
         List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
         assert path != null;
         this.completePathBehaviour = new CompletePathBehaviour(path);
+        this.completePathBehaviour.init(bot);
     }
 
     private static GraphNode getFixedTargetGraphNode(GraphNode graphNode) {
