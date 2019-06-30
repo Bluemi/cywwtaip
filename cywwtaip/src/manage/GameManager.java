@@ -9,10 +9,10 @@ import lenz.htw.cywwtaip.world.GraphNode;
 public class GameManager {
 
     enum BotTask{
-        REPAINT, ENERGY, PASSIVE;
-
-        int value;
+        ENERGY, PASSIVE, REPAINT
     }
+
+    final int AMOUNT_OF_BOTTASKS = 3;
 
     private RateSystem evaluator;
     private Bot[] bots;
@@ -20,23 +20,26 @@ public class GameManager {
     private int[] scores;
     private int currentScore;
 
+    private long energyUpdate = System.currentTimeMillis();
+    private final long REFILL_ENERGY_PERIOD = 200;
+
     private int playernumber;
 
     private final short BOTINDEX_NORMAL = 0;
     private final short BOTINDEX_MOBILE = 1;
     private final short BOTINDEX_WIDE = 2;
 
+    private final short ENERGY_FIT_INDEX = 0;
+    private final short PASSIVE_FIT_INDEX = 1;
+    private final short REPAINT_FIT_INDEX = 2;
+
     private BotTask currentTaskNormal;
     private BotTask currentTaskMobile;
     private BotTask currentTaskWide;
 
-    private float taskfitNormal;
-    private float taskfitMobile;
-    private float taskfitWide;
-
-    private float normalBotSpeed;
-    private float mobileBotSpeed;
-    private float wideBotSpeed;
+    private BotTask oldTaskNormal;
+    private BotTask oldTaskMobile;
+    private BotTask oldTaskWide;
 
     private boolean improveStrategy;
 
@@ -50,24 +53,72 @@ public class GameManager {
     }
 
     public void coordinateBots() {
+        float[] normalFits = evaluator.generateRating(bots[BOTINDEX_NORMAL]);
+        float[] mobileFits = evaluator.generateRating(bots[BOTINDEX_MOBILE]);
+        float[] wideFits = evaluator.generateRating(bots[BOTINDEX_WIDE]);
 
-
-        improveStrategy = checkCurrentGameState();
+        checkCurrentGameState(normalFits, mobileFits, wideFits);
 
         if (improveStrategy){
             updateStrategy();
         }
     }
 
-    private void updateStrategy(){
-        //TODO
+    private void updateStrategy() {
+        if (oldTaskNormal != currentTaskNormal) {
+            applyBotTask(currentTaskNormal, bots[BOTINDEX_NORMAL], getBestOtherPlayer());
+            oldTaskNormal = currentTaskNormal;
+        }
+
+        if (oldTaskMobile != currentTaskMobile) {
+            applyBotTask(currentTaskMobile, bots[BOTINDEX_MOBILE], getBestOtherPlayer());
+            oldTaskMobile = currentTaskMobile;
+        }
+
+        if (oldTaskWide != currentTaskWide){
+            applyBotTask(currentTaskWide, bots[BOTINDEX_WIDE], getBestOtherPlayer());
+            oldTaskWide = currentTaskWide;
+        }
+
+        improveStrategy = false;
     }
 
-    private boolean checkCurrentGameState(){
-        //TODO returns true if a bot need to change considering rating, current scores (+ ?).
+    private void checkCurrentGameState(float[] normalFits, float[] mobileFits, float[] wideFits){
+        if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD){
+            float bestEnergyFit = Math.max(wideFits[ENERGY_FIT_INDEX], Math.max(normalFits[ENERGY_FIT_INDEX], mobileFits[ENERGY_FIT_INDEX]));
 
+            if (normalFits[ENERGY_FIT_INDEX]==bestEnergyFit)
+                currentTaskNormal = BotTask.ENERGY;
 
-        return false;
+            else if (mobileFits[ENERGY_FIT_INDEX]==bestEnergyFit)
+                currentTaskMobile = BotTask.ENERGY;
+
+            else
+                currentTaskWide = BotTask.ENERGY;
+
+            improveStrategy = true;
+        } else {
+
+            // get currently the best task for every Unit
+            BotTask normalsNewTask = getBestSuitedTask(normalFits);
+            BotTask mobilesNewTask = getBestSuitedTask(mobileFits);
+            BotTask widesNewTask = getBestSuitedTask(wideFits);
+
+            if (currentTaskNormal != normalsNewTask){
+                currentTaskNormal = normalsNewTask;
+                improveStrategy = true;
+            }
+
+            if (currentTaskMobile != mobilesNewTask){
+                currentTaskMobile = mobilesNewTask;
+                improveStrategy = true;
+            }
+
+            if (currentTaskWide != widesNewTask){
+                currentTaskWide = widesNewTask;
+                improveStrategy = true;
+            }
+        }
     }
 
     private void applyBotTask(BotTask task, Bot bot, int playernumber){
@@ -88,23 +139,54 @@ public class GameManager {
         this.scores = scores;
         currentScore = scores[playernumber];
 
-        this.normalBotSpeed = speeds[BOTINDEX_NORMAL];
-        this.mobileBotSpeed = speeds[BOTINDEX_MOBILE];
-        this.wideBotSpeed = speeds[BOTINDEX_WIDE];
+        for (Bot bot : bots){
+            if(bot.isInSupply()){
+                energyUpdate = System.currentTimeMillis();
+            }
+        }
     }
 
     private void initBotTasks(){
         bots[BOTINDEX_NORMAL].setBehaviour(new GotoNextSupplyBehaviour());
         currentTaskNormal = BotTask.ENERGY;
-        taskfitNormal = 1.0f;
 
         bots[BOTINDEX_MOBILE].setBehaviour(new PaintBehaviour());
         currentTaskMobile = BotTask.PASSIVE;
-        taskfitMobile = 1.0f;
 
         bots[BOTINDEX_WIDE].setBehaviour(new PaintBehaviour());
         currentTaskWide = BotTask.PASSIVE;
-        taskfitWide = 1.0f;
+
+
+    }
+
+    private BotTask getBestSuitedTask(float[] fitValues){
+        float bestValue = 0;
+        int bestTask = 0;
+
+        for (int i = 0; i < AMOUNT_OF_BOTTASKS; i++){
+            if (fitValues[i] > bestValue) {
+                bestValue = fitValues[i];
+                bestTask = i;
+            }
+        }
+
+        if (bestTask == REPAINT_FIT_INDEX)
+            return BotTask.REPAINT;
+
+        return BotTask.PASSIVE;
+    }
+
+    private int getBestOtherPlayer(){
+        int bestEnemy = 0;
+        int bestScore = 0;
+        for (int i = 0; i < 3; i++){
+            if (i!=playernumber){
+                if (scores[i] > bestScore)
+                    bestScore = scores[i];
+                    bestEnemy = i;
+            }
+        }
+        return bestEnemy;
     }
 
     private float getPointGainBalance(){
