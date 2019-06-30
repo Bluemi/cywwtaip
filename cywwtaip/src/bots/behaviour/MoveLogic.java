@@ -11,6 +11,8 @@ public class MoveLogic {
     private MoveLogic() {}
 
     public static final float EPSILON = 0.000001f;
+    public static final float SUPPLY_BORDER = 0.94f;
+
 
     /**
      * Returns the direction update for the given bot, to navigate it to the given position
