@@ -4,15 +4,25 @@ import bots.Bot;
 
 public class RateSystem {
 
-    enum BotTasks{
-        OVERDRAW, ENERGY, PASSIVE, GAP
-    }
+    final float NORMAL_GET_ENERGY = 1.0f;
+    final float MOBILE_GET_ENERGY = 1.0f;
+    final float WIDE_GET_ENERGY = 1.0f;
 
-    //TODO Rating-Multiplier jeder Bot bekommt pro Rating Kategorie anhand seiner ability einen eigenen eignungsScore
+    final float NORMAL_DRAW_OVER = 1.0f;
+    final float MOBILE_DRAW_OVER = 1.0f;
+    final float WIDE_DRAW_OVER = 1.0f;
 
-    public BotTasks[] generateRating(Bot bot){
-        //TODO using multilplier for defined cases
-        // returns array mit bewertungen für jeden Task
+    final float NORMAL_KEEP_DISTANCE = 1.0f;
+    final float MOBILE_KEEP_DISTANCE = 1.0f;
+    final float WIDE_KEEP_DISTANCE = 1.0f;
+
+    public float[] generateRating(Bot bot){
+        float goToEnergySupply;
+        float attackOtherPlayer;
+        float keepDistance;
+
+        bot.getDistanceToSupply();
+
         return null;
     }
 }

@@ -3,6 +3,7 @@ import bots.BotType;
 import bots.behaviour.DriveToPointBehaviour;
 import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.net.NetworkClient;
+import manage.GameManager;
 import math.Vector3D;
 
 public class Main {
@@ -66,17 +67,25 @@ public class Main {
                 } catch (InterruptedException ignored) { }
             }
 
+            GameManager manager = new GameManager(bots);
+
             while (client.isGameRunning()) {
                 long startTime = System.currentTimeMillis();
+
+                manager.coordinateBots();
+
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
+                    /*
                     if (bot.hasFinished()) {
                         bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
                         // bot.setBehaviour(new RandomBehaviour());
                     }
+                    */
+
                     float directionUpdate = bot.getDirectionUpdate();
 
                     if (directionUpdate != 0.f) {
