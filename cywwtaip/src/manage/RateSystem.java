@@ -4,13 +4,13 @@ import bots.Bot;
 
 public class RateSystem {
 
-    final float NORMAL_GET_ENERGY = 1.0f;
+    final float NORMAL_GET_ENERGY = 1.5f;
     final float MOBILE_GET_ENERGY = 1.0f;
     final float WIDE_GET_ENERGY = 1.0f;
 
-    final float NORMAL_DRAW_OVER = 1.0f;
-    final float MOBILE_DRAW_OVER = 1.0f;
-    final float WIDE_DRAW_OVER = 1.0f;
+    final float NORMAL_REPAINT = 1.0f;
+    final float MOBILE_REPAINT = 1.0f;
+    final float WIDE_REPAINT = 1.0f;
 
     final float NORMAL_KEEP_DISTANCE = 1.0f;
     final float MOBILE_KEEP_DISTANCE = 1.0f;
