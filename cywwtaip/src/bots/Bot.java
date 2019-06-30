@@ -213,6 +213,6 @@ public class Bot {
     }
 
     public boolean isInSupply() {
-        return position.absMax() > MoveLogic.SUPPLY_BORDER;
+        return Math.abs(position.absMax()) > MoveLogic.SUPPLY_BORDER;
     }
 }
