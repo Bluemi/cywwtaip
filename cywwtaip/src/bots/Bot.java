@@ -30,11 +30,11 @@ public class Bot {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
-        setBehaviour(behaviour);
         this.currentGraphNode = graphNode;
         this.logger = new BotLogger(teamName, botType);
         this.lastPositionUpdate = -1;
         this.teamName = teamName;
+        setBehaviour(behaviour);
     }
 
     public void setBehaviour(BotBehaviour behaviour) {

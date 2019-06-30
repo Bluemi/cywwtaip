@@ -12,7 +12,7 @@ public class CompletePathBehaviour implements BotBehaviour {
     private static final float FINISH_DISTANCE = 0.001f;
     private static final int LOOK_FORWARD_DISTANCE = 2;
     private static final float UNSTUCK_DIRECTION_UPDATE = 0.2f;
-    private static final int NUM_UNSTUCK_FRAMES = 5;
+    private static final int NUM_UNSTUCK_FRAMES = 15;
 
     private List<GraphNode> path;
     private boolean hasFinished;
