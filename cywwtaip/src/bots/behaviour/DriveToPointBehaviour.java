@@ -32,7 +32,9 @@ public class DriveToPointBehaviour implements BotBehaviour {
 
         // create path and CompletePathBehaviour
         List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
-        assert path != null;
+        if (path == null) {
+            throw new IllegalStateException("no path found");
+        }
         this.completePathBehaviour = new CompletePathBehaviour(path);
         this.completePathBehaviour.init(bot);
     }

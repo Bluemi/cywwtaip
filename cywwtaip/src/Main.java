@@ -62,6 +62,9 @@ public class Main {
 
         private void setup() {
             client = new NetworkClient(serverIp, teamName, winSlogan);
+
+            // GraphInformation.prepareGraph(client.getGraph());
+
             System.out.println("client " + teamName + " connected!");
             playerNumber = client.getMyPlayerNumber();
         }
@@ -88,15 +91,19 @@ public class Main {
                 manager = new GameManager(bots, client.getMyPlayerNumber());
 
             while (client.isGameRunning()) {
-                if (!random) {
+                for (int botIndex = 0; botIndex < 3; botIndex++) {
+                    Bot bot = bots[botIndex];
+                    bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
+                    bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
+                }
+
+                if (manager != null) {
                     manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
                     manager.coordinateBots();
                 }
 
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
-                    bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
-                    bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
                     if (bot.hasFinished() && random) {
                         bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));

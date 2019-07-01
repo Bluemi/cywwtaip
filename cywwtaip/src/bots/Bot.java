@@ -45,12 +45,8 @@ public class Bot {
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
-        if (random) {
-            System.out.println(behaviour);
-            if (behaviour instanceof PaintBehaviour) {
-                for (StackTraceElement e : Thread.currentThread().getStackTrace())
-                    System.out.println(e);
-            }
+        if (!random) {
+            System.out.println("set behaviour " + botType + ": " + behaviour);
         }
         this.behaviour = behaviour;
         this.behaviour.init(this);
