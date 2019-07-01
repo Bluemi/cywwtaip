@@ -205,9 +205,11 @@ public class GameManager {
         int bestScore = 0;
         for (int i = 0; i < 3; i++){
             if (i!=playernumber){
-                if (scores[i] > bestScore)
+                if (scores[i] > bestScore){
                     bestScore = scores[i];
                     bestEnemy = i;
+
+                }
             }
         }
         return bestEnemy;
