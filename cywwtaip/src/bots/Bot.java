@@ -17,7 +17,6 @@ public class Bot {
     Vector3D direction;
     BotBehaviour behaviour;
     GraphNode currentGraphNode;
-    public BotLogger logger;
     long lastPositionUpdate;
     public String teamName;
 
@@ -33,7 +32,6 @@ public class Bot {
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
         this.currentGraphNode = graphNode;
-        this.logger = new BotLogger(teamName, botType);
         this.lastPositionUpdate = -1;
         this.teamName = teamName;
         setBehaviour(behaviour);
@@ -48,6 +46,10 @@ public class Bot {
         System.out.println("UPDATE");
         this.behaviour = behaviour;
         this.behaviour.init(this);
+        /*
+        if (playerNumber == 0 && botType == BotType.NORMAL)
+            System.out.println(behaviour);
+         */
     }
 
     public void updatePosition(Vector3D position) {
@@ -93,8 +95,8 @@ public class Bot {
         return behaviour.getMoveDirectionUpdate(this);
     }
 
-    private void setDefaultBehaviour() {
-        setBehaviour(new StayBehaviour());
+    public void setDefaultBehaviour() {
+        setBehaviour(new PaintBehaviour());
     }
 
     public Vector3D getPosition() {
