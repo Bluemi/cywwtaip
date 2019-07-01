@@ -45,9 +45,11 @@ public class Bot {
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
+        /*
         if (!random) {
             System.out.println("set behaviour " + botType + ": " + behaviour);
         }
+         */
         this.behaviour = behaviour;
         this.behaviour.init(this);
         /*
@@ -199,17 +201,30 @@ public class Bot {
 
         Vector3D nextPowerSupplyCenter = MoveLogic.getNextPowerSupplyCenter(position);
         GraphNode supplyTargetNode = GraphInformation.getClosestGraphNodeTo(currentGraphNode, nextPowerSupplyCenter);
-        return GraphInformation.getPathTo(currentGraphNode, supplyTargetNode);
+        return GraphInformation.getPathTo(
+                currentGraphNode,
+                supplyTargetNode,
+                playerNumber
+        );
     }
 
-    public ArrayList<GraphNode> getPathToPlayerNode(int playernumber){
+    /**
+     * Gets the path to the nearest node owned by otherPlayerNumber and optimizes the path for myPlayerNumber
+     * @param otherPlayerNumber The player number whose node should be found
+     * @return A path to the player with playerNumber optimized for myPlayerNumber
+     */
+    public ArrayList<GraphNode> getPathToPlayerNode(int otherPlayerNumber){
         //TODO
         // so wie getPathToSupply
         GraphNode targetNode = GraphInformation.getClosestGraphNodeWithPredicate(
                 currentGraphNode,
-                (GraphNode g) -> g.owner-1 == playernumber
+                (GraphNode g) -> g.owner-1 == otherPlayerNumber
         );
-        return GraphInformation.getPathTo(currentGraphNode, targetNode);
+        return GraphInformation.getPathTo(
+                currentGraphNode,
+                targetNode,
+                getPlayerNumber()
+        );
     }
 
     public GraphNode[] getClusterPosition(){

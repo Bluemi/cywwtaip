@@ -76,21 +76,18 @@ public class GameManager {
         long currentTime = System.currentTimeMillis();
 
         if (oldTaskNormal != currentTaskNormal && currentTime-normalLastupdated > UPDATETIME) {
-            //System.out.println("Update Normal");
             applyBotTask(currentTaskNormal, bots[BOTINDEX_NORMAL], getBestOtherPlayer());
             oldTaskNormal = currentTaskNormal;
             normalLastupdated =currentTime;
         }
 
         if (oldTaskMobile != currentTaskMobile && currentTime - mobileLastupdated > UPDATETIME) {
-            //System.out.println("Update Mobile");
             applyBotTask(currentTaskMobile, bots[BOTINDEX_MOBILE], getBestOtherPlayer());
             oldTaskMobile = currentTaskMobile;
             mobileLastupdated = currentTime;
         }
 
         if (oldTaskWide != currentTaskWide && currentTime - wideLastupdated > UPDATETIME){
-            //System.out.println("Update Wide");
             applyBotTask(currentTaskWide, bots[BOTINDEX_WIDE], getBestOtherPlayer());
             oldTaskWide = currentTaskWide;
             wideLastupdated = currentTime;
@@ -103,8 +100,6 @@ public class GameManager {
         checkTaskFinished();
 
         if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD && !energyOnTheWay) {
-            System.out.println("ENERGY UPDATE");
-
             float bestEnergyFit = Math.max(wideFits[ENERGY_FIT_INDEX], Math.max(normalFits[ENERGY_FIT_INDEX], mobileFits[ENERGY_FIT_INDEX]));
 
             if (wideFits[ENERGY_FIT_INDEX] == bestEnergyFit){
@@ -162,7 +157,6 @@ public class GameManager {
 
         for (Bot bot : bots){
             if(bot.isInSupply()){
-                System.out.println("Got new Energy");
                 energyUpdate = System.currentTimeMillis();
                 energyOnTheWay = false;
             }

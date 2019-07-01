@@ -85,6 +85,18 @@ public class GraphInformation {
     }
 
     /**
+     * @return whether the given node has a neighbor that is blocking
+     */
+    public static boolean hasBlockingNeighbor(GraphNode graphNode) {
+        for (GraphNode n : graphNode.neighbors) {
+            if (n.blocked) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the graph node, that is closest to the given position in the whole Graph, starting by the given startNode
      * @param startNode The graphNode from where to start searching
      * @param position The position, for which the closest GraphNode should be found
@@ -258,7 +270,27 @@ public class GraphInformation {
 
         @Override
         public int compare(GraphNodeWrapper a, GraphNodeWrapper b) {
-            return graphNodeComparison(this.targetNodePosition, a.graphNode, b.graphNode);
+            return (int) Math.signum(a.rating - b.rating);
+        }
+    }
+
+    public static class GraphNodeDistance {
+        private int ownPlayerNumber;
+
+        public GraphNodeDistance(int ownPlayerNumber) {
+            this.ownPlayerNumber = ownPlayerNumber;
+        }
+
+        public float getDistance(GraphNode a, GraphNode b) {
+            float distance = getDistanceBetween(a, b);
+
+            if (b.owner-1 == ownPlayerNumber)
+                distance *= 25.f;
+
+            if (hasBlockingNeighbor(a) || hasBlockingNeighbor(b))
+                distance *= 25.f;
+
+            return distance;
         }
     }
 
@@ -266,10 +298,15 @@ public class GraphInformation {
      * Implements the A* algorithm to find the optimal path from startNode to targetNode.
      * @param startNode The GraphNode to start from
      * @param targetNode The GraphNode to find a path to
+     * @param optimizeFor A player number for which to optimize the path.
      * @return A list of GraphNodes, that is the optimal path from startNode to targetNode. If no path could be found
      * null is returned.
      */
-    public static ArrayList<GraphNode> getPathTo(GraphNode startNode, GraphNode targetNode) {
+    public static ArrayList<GraphNode> getPathTo(
+            GraphNode startNode,
+            GraphNode targetNode,
+            int optimizeFor
+    ) {
         PriorityQueue<GraphNodeWrapper> openList = new PriorityQueue<>(new GraphNodeWrapperComparator(targetNode));
         HashSet<GraphNode> closedSet = new HashSet<>();
         HashMap<GraphNode, Float> distanceToStart = new HashMap<>();
@@ -277,6 +314,8 @@ public class GraphInformation {
 
         GraphNodeWrapper startNodeWrapper = new GraphNodeWrapper(startNode);
         openList.add(startNodeWrapper);
+
+        GraphNodeDistance graphNodeDistance = new GraphNodeDistance(optimizeFor);
 
         do {
             GraphNodeWrapper currentNode = openList.poll();
@@ -288,7 +327,7 @@ public class GraphInformation {
 
             closedSet.add(currentNode.graphNode);
 
-            expandNode(currentNode, openList, closedSet, distanceToStart, targetNode);
+            expandNode(currentNode, openList, closedSet, distanceToStart, targetNode, graphNodeDistance);
         } while (!openList.isEmpty());
 
         return null;
@@ -299,7 +338,8 @@ public class GraphInformation {
             PriorityQueue<GraphNodeWrapper> openList,
             HashSet<GraphNode> closedSet,
             HashMap<GraphNode, Float> distanceToStart,
-            GraphNode targetNode
+            GraphNode targetNode,
+            GraphNodeDistance graphNodeDistance
     ) {
         float distanceToCurrentNode = distanceToStart.get(currentNode.graphNode);
 
@@ -309,7 +349,7 @@ public class GraphInformation {
             if (closedSet.contains(neighbor))
                 continue;
 
-            float tentativeDistanceOfNeighbor = distanceToCurrentNode + getDistanceBetween(currentNode.graphNode, neighbor);
+            float tentativeDistanceOfNeighbor = distanceToCurrentNode + graphNodeDistance.getDistance(currentNode.graphNode, neighbor);
             GraphNodeWrapper neighborWrapper = new GraphNodeWrapper(neighbor, currentNode, 0.f);
 
             boolean neighborInOpenList = openList.contains(neighborWrapper);
@@ -325,7 +365,6 @@ public class GraphInformation {
             }
             openList.add(neighborWrapper);
         }
-
     }
 
     /**

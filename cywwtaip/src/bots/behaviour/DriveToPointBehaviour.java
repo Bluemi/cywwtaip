@@ -31,7 +31,11 @@ public class DriveToPointBehaviour implements BotBehaviour {
         targetGraphNodePosition = GraphInformation.getPositionOf(targetGraphNode);
 
         // create path and CompletePathBehaviour
-        List<GraphNode> path = GraphInformation.getPathTo(bot.getCurrentGraphNode(), targetGraphNode);
+        List<GraphNode> path = GraphInformation.getPathTo(
+                bot.getCurrentGraphNode(),
+                targetGraphNode,
+                bot.getPlayerNumber()
+        );
         if (path == null) {
             throw new IllegalStateException("no path found");
         }
