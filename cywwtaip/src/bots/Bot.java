@@ -35,9 +35,9 @@ public class Bot {
         this.currentGraphNode = graphNode;
         this.lastPositionUpdate = -1;
         this.teamName = teamName;
-        setBehaviour(behaviour);
         this.playerNumber = playerNumber;
         this.random = random;
+        setBehaviour(behaviour);
     }
 
     public int getPlayerNumber() {

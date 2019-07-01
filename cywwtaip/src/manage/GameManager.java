@@ -22,19 +22,19 @@ public class GameManager {
     private int currentScore;
 
     private long energyUpdate = System.currentTimeMillis();
-    private final long REFILL_ENERGY_PERIOD = 1500;
+    private final static long REFILL_ENERGY_PERIOD = 1500;
 
     private int playernumber;
 
-    private final short BOTINDEX_NORMAL = 0;
-    private final short BOTINDEX_MOBILE = 1;
-    private final short BOTINDEX_WIDE = 2;
+    private final static short BOTINDEX_NORMAL = 0;
+    private final static short BOTINDEX_MOBILE = 1;
+    private final static short BOTINDEX_WIDE = 2;
 
-    private final short ENERGY_FIT_INDEX = 0;
-    private final short PASSIVE_FIT_INDEX = 1;
-    private final short REPAINT_FIT_INDEX = 2;
+    private final static short ENERGY_FIT_INDEX = 0;
+    private final static short PASSIVE_FIT_INDEX = 1;
+    private final static short REPAINT_FIT_INDEX = 2;
 
-    private final long UPDATETIME = 1000;
+    private final static long UPDATETIME = 1000;
 
     private boolean energyOnTheWay = false;
 
@@ -167,15 +167,16 @@ public class GameManager {
     private void initBotTasks(){
         bots[BOTINDEX_NORMAL].setBehaviour(new GotoNextSupplyBehaviour());
         currentTaskNormal = BotTask.ENERGY;
+        oldTaskNormal = BotTask.ENERGY;
         energyOnTheWay = true;
 
         bots[BOTINDEX_MOBILE].setBehaviour(new PaintBehaviour());
         currentTaskMobile = BotTask.PASSIVE;
+        oldTaskMobile = BotTask.PASSIVE;
 
         bots[BOTINDEX_WIDE].setBehaviour(new PaintBehaviour());
         currentTaskWide = BotTask.PASSIVE;
-
-
+        oldTaskWide = BotTask.PASSIVE;
     }
 
     private BotTask getBestSuitedTask(float[] fitValues){
