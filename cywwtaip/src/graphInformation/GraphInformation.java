@@ -270,7 +270,7 @@ public class GraphInformation {
 
         @Override
         public int compare(GraphNodeWrapper a, GraphNodeWrapper b) {
-            return graphNodeComparison(this.targetNodePosition, a.graphNode, b.graphNode);
+            return (int) Math.signum(a.rating - b.rating);
         }
     }
 
@@ -285,10 +285,10 @@ public class GraphInformation {
             float distance = getDistanceBetween(a, b);
 
             if (b.owner-1 == ownPlayerNumber)
-                distance *= 3.f;
+                distance *= 25.f;
 
-            if (hasBlockingNeighbor(b))
-                distance *= 3.f;
+            if (hasBlockingNeighbor(a) || hasBlockingNeighbor(b))
+                distance *= 25.f;
 
             return distance;
         }
