@@ -82,30 +82,27 @@ public class Main {
             GameManager manager = new GameManager(bots, client.getMyPlayerNumber());
 
             while (client.isGameRunning()) {
-                manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
-                manager.coordinateBots();
+
+                if (!random) {
+                    manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
+                    manager.coordinateBots();
+                }
 
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
-                    /*
-                    if (bot.hasFinished()) {
-                        if (random) {
-                            bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
-                        } else {
-                            bot.setDefaultBehaviour();
-                        }
+                    if (bot.hasFinished() && random) {
+                        bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
                     }
-                    */
 
                     float directionUpdate = bot.getDirectionUpdate();
 
                     if (directionUpdate != 0.f)
                         client.changeMoveDirection(botIndex, directionUpdate);
                 } try {
-                    Thread.sleep(50);
+                    Thread.sleep(10);
                 } catch (InterruptedException ignored) { }
             }
         }
