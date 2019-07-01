@@ -30,21 +30,24 @@ public class Main {
                             client.getGraph()[0],
                             new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
                             teamName,
-                            playerNumber
+                            playerNumber,
+                            random
                     ),
                     new Bot(
                             BotType.MOBILE,
                             client.getGraph()[0],
                             new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
                             teamName,
-                            playerNumber
+                            playerNumber,
+                            random
                     ),
                     new Bot(
                             BotType.WIDE,
                             client.getGraph()[0],
                             new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())),
                             teamName,
-                            playerNumber
+                            playerNumber,
+                            random
                     )
             };
         }
@@ -79,10 +82,12 @@ public class Main {
 
             waitForGameStart();
 
-            GameManager manager = new GameManager(bots, client.getMyPlayerNumber());
+            GameManager manager = null;
+
+            if (!random)
+                manager = new GameManager(bots, client.getMyPlayerNumber());
 
             while (client.isGameRunning()) {
-
                 if (!random) {
                     manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
                     manager.coordinateBots();

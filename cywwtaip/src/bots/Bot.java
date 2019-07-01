@@ -21,13 +21,14 @@ public class Bot {
     public String teamName;
 
     int playerNumber;
+    private boolean random;
 
     /**
      * Creates a new Bot
      * @param botType The type of this bot (normal, mobile, wide)
      * @param graphNode A random graph node to get access to the graph
      */
-    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour, String teamName, int playerNumber) {
+    public Bot(@NotNull BotType botType, @NotNull GraphNode graphNode, @NotNull BotBehaviour behaviour, String teamName, int playerNumber, boolean random) {
         this.botType = botType;
         this.position = new Vector3D(1.f, 0.f, 0.f);
         this.direction = new Vector3D(1.f, 0.f, 0.f);
@@ -36,6 +37,7 @@ public class Bot {
         this.teamName = teamName;
         setBehaviour(behaviour);
         this.playerNumber = playerNumber;
+        this.random = random;
     }
 
     public int getPlayerNumber() {
@@ -43,8 +45,13 @@ public class Bot {
     }
 
     public void setBehaviour(BotBehaviour behaviour) {
-        if (playerNumber == 0 && botType == BotType.NORMAL)
+        if (random) {
             System.out.println(behaviour);
+            if (behaviour instanceof PaintBehaviour) {
+                for (StackTraceElement e : Thread.currentThread().getStackTrace())
+                    System.out.println(e);
+            }
+        }
         this.behaviour = behaviour;
         this.behaviour.init(this);
         /*
