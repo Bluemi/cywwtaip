@@ -76,14 +76,11 @@ public class Main {
             waitForGameStart();
 
             GameManager manager = new GameManager(bots, client.getMyPlayerNumber());
-            boolean jop = true;
 
             while (client.isGameRunning()) {
-                if (jop) {
-                    manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
-                    manager.coordinateBots();
-                    jop = false;
-                }
+                manager.updateGameState(getPlayerScores(client), getBotSpeeds(client));
+                manager.coordinateBots();
+
                 for (int botIndex = 0; botIndex < 3; botIndex++) {
                     Bot bot = bots[botIndex];
                     bot.updatePosition(new Vector3D(client.getBotPosition(playerNumber, botIndex)));

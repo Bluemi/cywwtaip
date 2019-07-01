@@ -33,7 +33,9 @@ public class GameManager {
     private final short PASSIVE_FIT_INDEX = 1;
     private final short REPAINT_FIT_INDEX = 2;
 
-    private final long UPDATETIME = 7000;
+    private final long UPDATETIME = 0;
+
+    private boolean energyOnTheWay = false;
 
     private long normalLastupdated = 0;
     private long mobileLastupdated = 0;
@@ -98,18 +100,19 @@ public class GameManager {
     }
 
     private void checkCurrentGameState(float[] normalFits, float[] mobileFits, float[] wideFits){
-        if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD){
+        if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD && !energyOnTheWay){
             float bestEnergyFit = Math.max(wideFits[ENERGY_FIT_INDEX], Math.max(normalFits[ENERGY_FIT_INDEX], mobileFits[ENERGY_FIT_INDEX]));
 
-            if (normalFits[ENERGY_FIT_INDEX]==bestEnergyFit)
-                currentTaskNormal = BotTask.ENERGY;
+            if (wideFits[ENERGY_FIT_INDEX] == bestEnergyFit)
+                currentTaskWide = BotTask.ENERGY;
 
-            else if (mobileFits[ENERGY_FIT_INDEX]==bestEnergyFit)
+            else if (mobileFits[ENERGY_FIT_INDEX] == bestEnergyFit)
                 currentTaskMobile = BotTask.ENERGY;
 
             else
-                currentTaskWide = BotTask.ENERGY;
+                currentTaskNormal = BotTask.ENERGY;
 
+            energyOnTheWay = true;
             improveStrategy = true;
         } else {
 
@@ -118,17 +121,17 @@ public class GameManager {
             BotTask mobilesNewTask = getBestSuitedTask(mobileFits);
             BotTask widesNewTask = getBestSuitedTask(wideFits);
 
-            if (currentTaskNormal != normalsNewTask){
+            if (currentTaskNormal != normalsNewTask && currentTaskNormal != BotTask.ENERGY){
                 currentTaskNormal = normalsNewTask;
                 improveStrategy = true;
             }
 
-            if (currentTaskMobile != mobilesNewTask){
+            if (currentTaskMobile != mobilesNewTask && currentTaskMobile != BotTask.ENERGY){
                 currentTaskMobile = mobilesNewTask;
                 improveStrategy = true;
             }
 
-            if (currentTaskWide != widesNewTask){
+            if (currentTaskWide != widesNewTask && currentTaskWide != BotTask.ENERGY){
                 currentTaskWide = widesNewTask;
                 improveStrategy = true;
             }
@@ -156,6 +159,7 @@ public class GameManager {
         for (Bot bot : bots){
             if(bot.isInSupply()){
                 energyUpdate = System.currentTimeMillis();
+                energyOnTheWay = false;
             }
         }
     }

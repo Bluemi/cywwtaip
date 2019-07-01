@@ -47,18 +47,16 @@ public class RateSystem {
             }
 
         }
-        float[] result = {dis1, dis2};
-        return result;
+        return new float[]{dis1, dis2};
     }
 
     private float[] generate(Bot bot, int myplayernumber, float multEnergy, float multPassive, float multRepaint){
         float distanceToPowerSupply = bot.getDistanceToSupply();
         float[] distanceToEnemyNodes = getDistancesToEnemies(bot, myplayernumber);
-        float[] rating = {
+        return new float[]{
                 (1/distanceToPowerSupply) * multEnergy,
-                (distanceToEnemyNodes[0]+distanceToEnemyNodes[1]) /2 * multPassive,
-                (1/(distanceToEnemyNodes[0]+distanceToEnemyNodes[1]) /2 * multRepaint)
+                Math.min(distanceToEnemyNodes[0], distanceToEnemyNodes[1]) * multPassive,
+                ((1/(distanceToEnemyNodes[0]+distanceToEnemyNodes[1])) /2 * multRepaint)
         };
-        return rating;
     }
 }
