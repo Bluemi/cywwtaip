@@ -13,10 +13,14 @@ public class Main {
         String winSlogan;
         int playerNumber;
         Bot[] bots;
+        String serverIp;
+        boolean random;
 
-        public ClientRunner(String teamName, String winSlogan) {
+        public ClientRunner(String teamName, String winSlogan, String serverIp, boolean random) {
             this.teamName = teamName;
             this.winSlogan = winSlogan;
+            this.serverIp = serverIp;
+            this.random = random;
         }
 
         private void createBots() {
@@ -54,7 +58,7 @@ public class Main {
         }
 
         private void setup() {
-            client = new NetworkClient(null, teamName, winSlogan);
+            client = new NetworkClient(serverIp, teamName, winSlogan);
             System.out.println("client " + teamName + " connected!");
             playerNumber = client.getMyPlayerNumber();
         }
@@ -88,20 +92,19 @@ public class Main {
 
                     /*
                     if (bot.hasFinished()) {
-                        bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
-                        // bot.setBehaviour(new RandomBehaviour());
+                        if (random) {
+                            bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
+                        } else {
+                            bot.setDefaultBehaviour();
+                        }
                     }
                     */
 
-
-
                     float directionUpdate = bot.getDirectionUpdate();
 
-                    if (directionUpdate != 0.f) {
+                    if (directionUpdate != 0.f)
                         client.changeMoveDirection(botIndex, directionUpdate);
-                    }
-                }
-                try {
+                } try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) { }
             }
@@ -110,7 +113,11 @@ public class Main {
 
     public static void main(String[] args) {
         Main m = new Main();
-        m.start();
+        String serverIp = "localhost";
+        if (args.length == 1) {
+            serverIp = args[0];
+        }
+        m.start(serverIp);
     }
 
     private float[] getBotSpeeds(NetworkClient client){
@@ -123,10 +130,17 @@ public class Main {
         return scores;
     }
 
-    private void start() {
+    private void start(String serverIp) {
         Thread[] threads = new Thread[3];
-        for (int i = 0; i < 3; i++)
-            threads[i] = new Thread(new ClientRunner("team"+i, "team " + i + " win"));
+        for (int i = 0; i < threads.length; i++) {
+            String teamName = "team random";
+            boolean random = true;
+            if (i == 0) {
+                teamName = "team decision";
+                random = false;
+            }
+            threads[i] = new Thread(new ClientRunner(teamName, "Hauptsache nicht Robin und Philipp :D", serverIp, random));
+        }
 
         for (Thread t : threads)
             t.start();
@@ -135,5 +149,10 @@ public class Main {
             for (Thread t : threads)
                 t.join();
         } catch (InterruptedException ignored) { }
+    }
+
+    private void startOne(String serverIp) {
+        ClientRunner runner = new ClientRunner("Bots", "Hauptsache nicht Robin und Philipp :D", serverIp, false);
+        runner.run();
     }
 }

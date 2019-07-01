@@ -67,9 +67,6 @@ public class PaintBehaviour implements BotBehaviour {
 
         if (currentBehaviour instanceof PaintOverBehaviour) {
             PaintOverBehaviour p = (PaintOverBehaviour) currentBehaviour;
-            if (bot.getPlayerNumber() == 0 && bot.botType == BotType.WIDE) {
-                //System.out.println("playerToOverPaint: " + p.playerToOverPaint);
-            }
         }
 
         return this.currentBehaviour.getMoveDirectionUpdate(bot);
