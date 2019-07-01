@@ -193,10 +193,10 @@ public class GameManager {
             }
         }
 
-        if (bestTask == REPAINT_FIT_INDEX)
+        //if (bestTask == REPAINT_FIT_INDEX)
             return BotTask.REPAINT;
 
-        return BotTask.PASSIVE;
+        //return BotTask.PASSIVE;
 
     }
 
