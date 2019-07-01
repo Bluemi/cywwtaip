@@ -14,11 +14,13 @@ public class Main {
         int playerNumber;
         Bot[] bots;
         String serverIp;
+        boolean random;
 
-        public ClientRunner(String teamName, String winSlogan, String serverIp) {
+        public ClientRunner(String teamName, String winSlogan, String serverIp, boolean random) {
             this.teamName = teamName;
             this.winSlogan = winSlogan;
             this.serverIp = serverIp;
+            this.random = random;
         }
 
         private void createBots() {
@@ -91,7 +93,11 @@ public class Main {
                     bot.updateDirection(new Vector3D(client.getBotDirection(botIndex)));
 
                     if (bot.hasFinished()) {
-                        bot.setDefaultBehaviour();
+                        if (random) {
+                            bot.setBehaviour(new DriveToPointBehaviour(GraphInformation.getRandomNode(client.getGraph())));
+                        } else {
+                            bot.setDefaultBehaviour();
+                        }
                     }
 
                     float directionUpdate = bot.getDirectionUpdate();
@@ -111,7 +117,7 @@ public class Main {
         if (args.length == 1) {
             serverIp = args[0];
         }
-        m.startOne(serverIp);
+        m.start(serverIp);
     }
 
     private float[] getBotSpeeds(NetworkClient client){
@@ -126,8 +132,15 @@ public class Main {
 
     private void start(String serverIp) {
         Thread[] threads = new Thread[3];
-        for (int i = 0; i < threads.length; i++)
-            threads[i] = new Thread(new ClientRunner("team", "Hauptsache nicht Robin und Philipp :D", serverIp));
+        for (int i = 0; i < threads.length; i++) {
+            String teamName = "team random";
+            boolean random = true;
+            if (i == 0) {
+                teamName = "team decision";
+                random = false;
+            }
+            threads[i] = new Thread(new ClientRunner(teamName, "Hauptsache nicht Robin und Philipp :D", serverIp, random));
+        }
 
         for (Thread t : threads)
             t.start();
@@ -139,7 +152,7 @@ public class Main {
     }
 
     private void startOne(String serverIp) {
-        ClientRunner runner = new ClientRunner("Bots", "Hauptsache nicht Robin und Philipp :D", serverIp);
+        ClientRunner runner = new ClientRunner("Bots", "Hauptsache nicht Robin und Philipp :D", serverIp, false);
         runner.run();
     }
 }
