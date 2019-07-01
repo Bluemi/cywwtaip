@@ -100,18 +100,22 @@ public class GameManager {
     }
 
     private void checkCurrentGameState(float[] normalFits, float[] mobileFits, float[] wideFits){
-        if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD && !energyOnTheWay){
+        checkTaskFinished();
+
+        if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD && !energyOnTheWay) {
+            System.out.println("ENERGY UPDATE");
+
             float bestEnergyFit = Math.max(wideFits[ENERGY_FIT_INDEX], Math.max(normalFits[ENERGY_FIT_INDEX], mobileFits[ENERGY_FIT_INDEX]));
 
-            if (wideFits[ENERGY_FIT_INDEX] == bestEnergyFit)
+            if (wideFits[ENERGY_FIT_INDEX] == bestEnergyFit){
                 currentTaskWide = BotTask.ENERGY;
-
-            else if (mobileFits[ENERGY_FIT_INDEX] == bestEnergyFit)
+            }
+            else if (mobileFits[ENERGY_FIT_INDEX] == bestEnergyFit) {
                 currentTaskMobile = BotTask.ENERGY;
-
-            else
+            }
+            else {
                 currentTaskNormal = BotTask.ENERGY;
-
+            }
             energyOnTheWay = true;
             improveStrategy = true;
         } else {
@@ -158,6 +162,7 @@ public class GameManager {
 
         for (Bot bot : bots){
             if(bot.isInSupply()){
+                System.out.println("Got new Energy");
                 energyUpdate = System.currentTimeMillis();
                 energyOnTheWay = false;
             }
@@ -192,6 +197,7 @@ public class GameManager {
             return BotTask.REPAINT;
 
         return BotTask.PASSIVE;
+
     }
 
     private int getBestOtherPlayer(){
@@ -205,6 +211,13 @@ public class GameManager {
             }
         }
         return bestEnemy;
+    }
+
+    private void checkTaskFinished(){
+        for (Bot bot : bots){
+            if (bot.hasFinished())
+                bot.setBehaviour(new PaintOverBehaviour(getBestOtherPlayer()));
+        }
     }
 
     private float getPointGainBalance(){
