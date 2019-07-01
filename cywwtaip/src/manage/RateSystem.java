@@ -9,8 +9,8 @@ public class RateSystem {
     final float VIEW_DISTANCE_RANGE = 5;
 
     private final float NORMAL_GET_ENERGY = 1.5f;
-    private final float MOBILE_GET_ENERGY = 1.3f;
-    private final float WIDE_GET_ENERGY = 0.3f;
+    private final float MOBILE_GET_ENERGY = 50f;
+    private final float WIDE_GET_ENERGY = 50f;
 
     private final float NORMAL_REPAINT = 0.8f;
     private final float MOBILE_REPAINT = 1.6f;

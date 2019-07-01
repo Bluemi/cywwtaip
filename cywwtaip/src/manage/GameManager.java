@@ -1,6 +1,7 @@
 package manage;
 
 import bots.Bot;
+import bots.BotType;
 import bots.behaviour.GotoNextSupplyBehaviour;
 import bots.behaviour.PaintBehaviour;
 import bots.behaviour.PaintOverBehaviour;
@@ -21,7 +22,7 @@ public class GameManager {
     private int currentScore;
 
     private long energyUpdate = System.currentTimeMillis();
-    private final long REFILL_ENERGY_PERIOD = 2000;
+    private final long REFILL_ENERGY_PERIOD = 1500;
 
     private int playernumber;
 
@@ -33,7 +34,7 @@ public class GameManager {
     private final short PASSIVE_FIT_INDEX = 1;
     private final short REPAINT_FIT_INDEX = 2;
 
-    private final long UPDATETIME = 0;
+    private final long UPDATETIME = 1000;
 
     private boolean energyOnTheWay = false;
 
@@ -75,7 +76,7 @@ public class GameManager {
     private void updateStrategy() {
         long currentTime = System.currentTimeMillis();
 
-        if (oldTaskNormal != currentTaskNormal && currentTime-normalLastupdated > UPDATETIME) {
+        if (oldTaskNormal != currentTaskNormal && currentTime - normalLastupdated > UPDATETIME) {
             applyBotTask(currentTaskNormal, bots[BOTINDEX_NORMAL], getBestOtherPlayer());
             oldTaskNormal = currentTaskNormal;
             normalLastupdated =currentTime;
@@ -101,7 +102,7 @@ public class GameManager {
 
         if (System.currentTimeMillis() - energyUpdate > REFILL_ENERGY_PERIOD && !energyOnTheWay) {
             float bestEnergyFit = Math.max(wideFits[ENERGY_FIT_INDEX], Math.max(normalFits[ENERGY_FIT_INDEX], mobileFits[ENERGY_FIT_INDEX]));
-
+            System.out.println("GO FOR ENERGY");
             if (wideFits[ENERGY_FIT_INDEX] == bestEnergyFit){
                 currentTaskWide = BotTask.ENERGY;
             }
@@ -166,6 +167,7 @@ public class GameManager {
     private void initBotTasks(){
         bots[BOTINDEX_NORMAL].setBehaviour(new GotoNextSupplyBehaviour());
         currentTaskNormal = BotTask.ENERGY;
+        energyOnTheWay = true;
 
         bots[BOTINDEX_MOBILE].setBehaviour(new PaintBehaviour());
         currentTaskMobile = BotTask.PASSIVE;
@@ -212,7 +214,13 @@ public class GameManager {
     private void checkTaskFinished(){
         for (Bot bot : bots){
             if (bot.hasFinished())
-                bot.setBehaviour(new PaintOverBehaviour(getBestOtherPlayer()));
+                improveStrategy = true;
+                if (bot.botType == BotType.NORMAL)
+                    currentTaskNormal = BotTask.REPAINT;
+                if (bot.botType == BotType.MOBILE)
+                    currentTaskMobile = BotTask.REPAINT;
+                if (bot.botType == BotType.WIDE)
+                    currentTaskWide = BotTask.REPAINT;
         }
     }
 
