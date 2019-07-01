@@ -130,13 +130,11 @@ public class Main {
     }
 
     private float[] getBotSpeeds(NetworkClient client){
-        float[] speeds = {client.getBotSpeed(0), client.getBotSpeed(1), client.getBotSpeed(2)};
-        return speeds;
+        return new float[]{client.getBotSpeed(0), client.getBotSpeed(1), client.getBotSpeed(2)};
     }
 
     private int[] getPlayerScores(NetworkClient client){
-        int[] scores = {client.getScore(0), client.getScore(1), client.getScore(2)};
-        return scores;
+        return new int[]{client.getScore(0), client.getScore(1), client.getScore(2)};
     }
 
     private void start(String serverIp) {
