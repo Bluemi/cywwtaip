@@ -6,12 +6,18 @@ import graphInformation.GraphInformation;
 import lenz.htw.cywwtaip.world.GraphNode;
 import math.Vector3D;
 
-import java.util.Objects;
-
 public class PaintBehaviour implements BotBehaviour {
     public static final float MAX_ENEMY_DISTANCE = GraphInformation.AVERAGE_NEIGHBOR_DISTANCE * 12.f;
     public static final float MAX_ENEMY_DISTANCE_SQUARED = MAX_ENEMY_DISTANCE * MAX_ENEMY_DISTANCE;
+    private static final long PAINT_DURATION = 4000;
+
+    private long startTime;
     private BotBehaviour currentBehaviour;
+
+    public PaintBehaviour() {
+        this.startTime = 0;
+        this.currentBehaviour = null;
+    }
 
     private GraphNode getClosestEnemyStartNode(Bot bot) {
         GraphNode closestEnemyStartNode = null;
@@ -61,6 +67,12 @@ public class PaintBehaviour implements BotBehaviour {
 
     @Override
     public float getMoveDirectionUpdate(Bot bot) {
+        long currentMillis = System.currentTimeMillis();
+
+        if (startTime == 0) {
+            startTime = currentMillis;
+        }
+
         if (this.currentBehaviour.hasFinished(bot)) {
             chooseBehaviour(bot);
         }
@@ -74,6 +86,6 @@ public class PaintBehaviour implements BotBehaviour {
 
     @Override
     public boolean hasFinished(Bot bot) {
-        return false;
+        return startTime != 0 && System.currentTimeMillis() - startTime > PAINT_DURATION;
     }
 }

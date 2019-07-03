@@ -142,10 +142,10 @@ public class Main {
     private void start(String serverIp) {
         Thread[] threads = new Thread[3];
         for (int i = 0; i < threads.length; i++) {
-            String teamName = "team random" + i;
+            String teamName = "random" + i;
             boolean random = true;
             if (i == 0) {
-                teamName = "team decision";
+                teamName = "decision";
                 random = false;
             }
             threads[i] = new Thread(new ClientRunner(teamName, "Hauptsache nicht Robin und Philipp :D", serverIp, random));
@@ -161,7 +161,7 @@ public class Main {
     }
 
     private void startOne(String serverIp) {
-        ClientRunner runner = new ClientRunner("Bots", "Hauptsache nicht Robin und Philipp :D", serverIp, false);
+        ClientRunner runner = new ClientRunner("mb", "Hauptsache nicht Robin und Philipp :D", serverIp, false);
         runner.run();
     }
 }
