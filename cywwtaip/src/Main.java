@@ -113,7 +113,9 @@ public class Main {
 
                     if (directionUpdate != 0.f)
                         client.changeMoveDirection(botIndex, directionUpdate);
-                } try {
+                }
+
+                try {
                     Thread.sleep(10);
                 } catch (InterruptedException ignored) { }
             }
@@ -140,7 +142,7 @@ public class Main {
     private void start(String serverIp) {
         Thread[] threads = new Thread[3];
         for (int i = 0; i < threads.length; i++) {
-            String teamName = "team random";
+            String teamName = "team random" + i;
             boolean random = true;
             if (i == 0) {
                 teamName = "team decision";

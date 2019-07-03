@@ -11,14 +11,14 @@ import java.util.List;
 public class CompletePathBehaviour implements BotBehaviour {
     private static final float FINISH_DISTANCE = 0.001f;
     private static final int LOOK_FORWARD_DISTANCE = 2;
-    private static final float UNSTUCK_DIRECTION_UPDATE = 0.1f;
-    private static final int NUM_UNSTUCK_FRAMES = 15;
+    private static final int LOOK_BACKWARD_DISTANCE = 10;
+    private static final int NUM_UNSTUCK_MILLIS = 500;
 
     private List<GraphNode> path;
     private boolean hasFinished;
     private Vector3D targetPosition;
-    private float unstuckDirection;
-    private int unstuckCounter;
+    private long unstuckDetectedTime;
+    private boolean stuckDetected;
 
     public CompletePathBehaviour(@NotNull List<GraphNode> path) {
         this.path = path;
@@ -26,8 +26,8 @@ public class CompletePathBehaviour implements BotBehaviour {
 
         this.targetPosition = GraphInformation.getPositionOf(getLastPathNode());
         this.hasFinished = false;
-        this.unstuckDirection = 0.f;
-        this.unstuckCounter = 0;
+        this.unstuckDetectedTime = 0;
+        this.stuckDetected = false;
     }
 
     private int getNearestIndex(Bot bot) {
@@ -50,36 +50,34 @@ public class CompletePathBehaviour implements BotBehaviour {
 
     @Override
     public float getMoveDirectionUpdate(Bot bot) {
-
         int nearestIndex = getNearestIndex(bot);
         int look_forward_index = nearestIndex + LOOK_FORWARD_DISTANCE;
+
+        long currentMillis = System.currentTimeMillis();
+
+        if (bot.isStuck() && !stuckDetected) {
+            unstuckDetectedTime = currentMillis;
+            stuckDetected = true;
+            return (float) Math.PI;
+        }
+
+        if (stuckDetected) {
+            if (currentMillis - unstuckDetectedTime > NUM_UNSTUCK_MILLIS) {
+                hasFinished = true; // do not go path again, after being stuck there
+            }
+
+            look_forward_index = nearestIndex - LOOK_BACKWARD_DISTANCE; // look back, if stuck
+            if (look_forward_index < 0) {
+                return 0.f;
+            }
+        }
+
         if (look_forward_index >= path.size()) {
             this.hasFinished = true;
             return MoveLogic.getDirectionUpdateToPosition(bot, this.targetPosition);
         }
 
         GraphNode nextNode = path.get(look_forward_index);
-
-        if (bot.isStuck()) {
-            if (unstuckDirection == 0.f) {
-                Vector3D fromBotToNextNode = Vector3D.fromTo(bot.getPosition(), GraphInformation.getPositionOf(nextNode));
-                if (Vector3D.isAngleAcute(bot.getLeftDirection(), fromBotToNextNode)) {
-                    unstuckDirection = -UNSTUCK_DIRECTION_UPDATE;
-                } else {
-                    unstuckDirection = UNSTUCK_DIRECTION_UPDATE;
-                }
-
-                unstuckCounter = NUM_UNSTUCK_FRAMES;
-            }
-            return unstuckDirection;
-        } else {
-            unstuckDirection = 0.f;
-        }
-
-        if (unstuckCounter > 0) {
-            unstuckCounter--;
-            return unstuckDirection;
-        }
 
         return MoveLogic.getDirectionUpdateToPosition(bot, GraphInformation.getPositionOf(nextNode));
     }
